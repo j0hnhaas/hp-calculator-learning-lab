@@ -17,22 +17,22 @@ export class CalcError extends Error {}
 /** Below this angle (radians) sin θ = tan θ = θ to the calculator's precision. */
 const SMALL = fromNumber(1e-9);
 
-const MODES = {
+export const MODES = {
   DEG: { full: 360n * S, quarter: 90n * S, toRad: (a) => mul(a, PI) / 180n, fromRad: (r) => div(r * 180n, PI) },
   RAD: { full: 2n * PI, quarter: HALF_PI, toRad: (a) => a, fromRad: (r) => r },
   GRD: { full: 400n * S, quarter: 100n * S, toRad: (a) => mul(a, PI) / 200n, fromRad: (r) => div(r * 200n, PI) },
 };
 
-function tracer(trace) {
+export function tracer(trace) {
   return trace ? (step) => trace.push(step) : undefined;
 }
 
-function finish(v, scale = 0) {
+export function finish(v, scale = 0) {
   const x = toNumber(v, scale);
   return round10(x);
 }
 
-const OVERFLOW = 9.999999999e99;
+export const OVERFLOW = 9.999999999e99;
 
 /**
  * sin, cos, tan
@@ -40,8 +40,11 @@ const OVERFLOW = 9.999999999e99;
  * @param {number} x
  * @param {'DEG'|'RAD'|'GRD'} mode
  */
-export function trig(fn, x, mode = 'DEG', trace) {
-  const T = tracer(trace);
+/**
+ * Reduce an angle exactly (in decimal) to 0 <= θ < π/2 plus a quadrant.
+ * Shared by the decimal and the binary CORDIC so both start from the same θ.
+ */
+export function reduceAngle(fn, x, mode, T, algo = 'trig') {
   const M = MODES[mode];
   const v = fromNumber(x);
   const neg = v < 0n;
@@ -50,7 +53,26 @@ export function trig(fn, x, mode = 'DEG', trace) {
   const quadrant = Number(a / M.quarter);
   a -= BigInt(quadrant) * M.quarter;
   const theta = M.toRad(a);
-  T?.({ algo: 'trig', phase: 'reduce', fn, mode, quadrant, regs: { x: v, a, theta }, msg: ['trig.reduce', { fn, mode, quadrant: quadrant + 1 }] });
+  T?.({ algo, phase: 'reduce', fn, mode, quadrant, regs: { x: v, a, theta }, msg: ['trig.reduce', { fn, mode, quadrant: quadrant + 1 }] });
+  return { neg, quadrant, theta };
+}
+
+/** Map sin/cos of the reduced angle back to the full circle. */
+export function unreduce(fn, sinA, cosA, quadrant, neg) {
+  const table = [
+    [sinA, cosA],
+    [cosA, -sinA],
+    [-sinA, -cosA],
+    [-cosA, sinA],
+  ];
+  let [s, c] = table[quadrant];
+  if (neg) s = -s;
+  return fn === 'sin' ? s : c;
+}
+
+export function trig(fn, x, mode = 'DEG', trace) {
+  const T = tracer(trace);
+  const { neg, quadrant, theta } = reduceAngle(fn, x, mode, T);
 
   let sinA;
   let cosA;

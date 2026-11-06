@@ -29,6 +29,12 @@ Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pr
   - die Quadratwurzel Ziffer für Ziffer, durch Abziehen ungerader Zahlen
   - einen **Konvergenz-Plot**, der für jeden Mikroschritt zeigt, wie viele Stellen schon stimmen. In der Pseudo-Division kommt etwa eine Stelle pro Dekade dazu. Die Pseudo-Multiplikation baut das Ergebnis mit den kleinsten Schritten zuerst auf und ist deshalb erst ganz am Ende genau. Ein Klick in den Plot springt zum Schritt.
   - eine **eigene Eingabe**: Funktion, Wert und Winkelmodus wählen und die Rechnung direkt im Labor ansehen
+  - einen **Vergleich mit klassischem binärem CORDIC** für sin, cos, tan und atan:
+    - Umschalter Dezimal ↔ Binär
+    - binäre Register und die 36 Konstanten atan(2⁻ⁱ)
+    - das Pendeln des Vektors um das Ziel
+    - die Konvergenzkurve des anderen Verfahrens als Schatten
+    - eine Vergleichstabelle (Mikroschritte, Additionen, Konstanten, Verstärkung K, Zahlenformat, Genauigkeit bei kleinen Winkeln)
 - **PWA:** installierbar und offline nutzbar, Oberfläche auf Deutsch und Englisch.
 
 ### Die Algorithmen (dezimales CORDIC nach Volder/Meggitt)
@@ -77,7 +83,8 @@ Wenn du Dateien änderst, erhöhe `VERSION` in `sw.js`. Sonst liefert der Servic
 index.html, css/style.css, manifest.webmanifest, sw.js, icons/
 js/engine/   decimal.js (BCD-Festkomma, Wurzel), constants.js (ROM-Tabellen),
              cordic.js (tan/atan/ln/exp-Kerne mit Trace), functions.js,
-             convergence.js (richtige Stellen pro Schritt)
+             convergence.js (richtige Stellen pro Schritt),
+             binary.js (klassisches binäres CORDIC zum Vergleich)
 js/calc/     hp45.js (RPN, Anzeigeformat), keys.js (Tastatur)
 js/ui/       display.js (LED), calculator.js, lab.js (Labor)
 js/i18n.js, js/app.js, tests/
@@ -87,7 +94,7 @@ js/i18n.js, js/app.js, tests/
 
 - [x] Stufe 1: Rechner, dezimales CORDIC mit Trace, Step-by-Step-Labor, Vektor- und Zoom-Ansicht, PWA, DE/EN
 - [x] Stufe 2: Konvergenz-Plot (richtige Stellen pro Schritt), eigene Eingabe im Labor
-- [ ] Stufe 3: Umschalter dezimales HP-Verfahren ↔ klassisches binäres CORDIC, Vergleich der Schrittzahlen
+- [x] Stufe 3: Umschalter dezimales HP-Verfahren ↔ klassisches binäres CORDIC, Vergleich der Schrittzahlen
 
 Die Tastenbelegung wurde anhand der Beschreibung des Smithsonian (NMAH) und der HP-Kurzreferenz rekonstruiert. Hinweise anhand eines Originalgeräts sind willkommen.
 
@@ -108,6 +115,7 @@ The HP-45 had no hardware multiplier. It computed in BCD and could only **shift*
   - the square root computed digit by digit
   - a convergence plot of correct digits per micro-step: pseudo-division gains about one digit per decade, while pseudo-multiplication only reaches full precision at its last step
   - your own input: pick a function, value and angle mode
+  - a comparison with classic binary CORDIC (sin, cos, tan, atan): a decimal/binary switch, binary registers, the vector oscillating around its target, a ghost of the other method's convergence curve and a comparison table
 - installable offline PWA, German and English UI
 
 **Accuracy:** The simulation is faithful to the algorithms, not bit-exact. It uses the same decimal pseudo-division and pseudo-multiplication as the HP-45 but does not run the original ROM microcode. It computes internally with 20 decimal places and rounds to 10 significant digits, like the original.
