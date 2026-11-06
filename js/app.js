@@ -7,6 +7,8 @@ import { Lab } from './ui/lab.js';
 import { t, setLang, detectLang, applyStatic, getLang, onLang, setModelName } from './i18n.js';
 import { openRpnGuide, TASKS, taskTexts, keys } from './ui/rpn-guide.js';
 import './ui/sheet.js';
+import { openKeyHelp } from './ui/keyhelp-ui.js';
+import * as fn from './engine/functions.js';
 
 // ---------------------------------------------------------------- settings
 const store = {
@@ -84,10 +86,43 @@ function renderStatus() {
   statusEl.innerHTML = `
     <div class="st-head">
       <button type="button" class="term" data-term="stack">${t('status.stack')}</button>
-      <button type="button" class="help-link" data-rpn>${t('rpn.open')}</button>
+      <span class="st-links"><button type="button" class="help-link" data-keyhelp>${t('keyhelp.toggle')}</button><button type="button" class="help-link" data-rpn>${t('rpn.open')}</button></span>
     </div>
     <div class="stackviz">${rows}${mem}</div>
     <div class="modes"><span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>`;
+}
+
+// ---------------------------------------------------------------- key help mode
+let helpMode = false;
+const helpBar = document.getElementById('helpbar');
+
+function setHelpMode(on) {
+  helpMode = on;
+  document.body.classList.toggle('keyhelp-on', on);
+  document.querySelectorAll('.settings [data-keyhelp]').forEach((b) => b.classList.toggle('primary', on));
+  helpBar.hidden = !on;
+  if (on) {
+    helpBar.innerHTML = `<span>${t('keyhelp.on')}</span><button type="button" class="pill primary" data-keyhelp-off>${t('keyhelp.done')}</button>`;
+    helpBar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-keyhelp]')) setHelpMode(!helpMode);
+  if (e.target.closest('[data-keyhelp-off]')) setHelpMode(false);
+});
+
+/** Run an example calculation and show it in the lab ("See how it calculates"). */
+function showInLab({ label, args, angle = 'DEG' }) {
+  const steps = [];
+  let result;
+  if (['sin', 'cos', 'tan'].includes(label)) result = fn.trig(label, args[0], angle, steps);
+  else if (['asin', 'acos', 'atan'].includes(label)) result = fn[label](args[0], angle, steps);
+  else if (label === 'pow' || label === 'pow35') result = fn.pow(args[0], args[1], steps);
+  else result = fn[label](args[0], steps);
+  lab.load({ label, args, angle, steps, result });
+  setSheet(true);
+  document.getElementById('lab').scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
 // ---------------------------------------------------------------- RPN guide & exercises
@@ -175,6 +210,10 @@ if (!store.get('hintSeen', false)) {
 
 function handleKey(id) {
   if (!powered) return;
+  if (helpMode) {
+    openKeyHelp(id, calc.model, showInLab);
+    return;
+  }
   click();
   if (busy) {
     if (queue.length < 2) queue.push(id); // the HP-45 buffers a keystroke while busy
@@ -288,6 +327,7 @@ onLang(() => {
   applyStatic();
   btnLang.textContent = t('settings.lang');
   document.title = t('app.doctitle');
+  if (helpMode) setHelpMode(true);
   showTask();
   renderStatus();
 });

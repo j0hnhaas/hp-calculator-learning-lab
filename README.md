@@ -19,6 +19,7 @@ Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pr
   - **Einfach** (Standard): Die Rechnung wird in 4 bis 11 Schritten erzählt. Winkel werden mit „Münzen“ bezahlt (45°, 5,71°, 0,573° …), Logarithmen über Zinsen erklärt (100 %, 10 %, 1 % …). Dazu kommen Merksätze und eine Münz-Grafik. Im Modus „Mitraten“ fragt das Labor vor jeder großen Münze, wie oft sie passt.
   - **Detail:** alle Mikroschritte mit Konvergenz-Plot und Konstantentabelle
   - **Profi:** zusätzlich BCD-Register und der Vergleich mit binärem CORDIC
+- **Tastenhilfe:** Mit „? Tastenhilfe“ werden Tasten erklärt statt ausgeführt. Für jede Taste und Gold-Funktion beider Modelle gibt es eine Karte mit Erklärung, Tastenfolge und Stapel vorher/nachher. Bei Rechenfunktionen führt ein Knopf direkt ins Labor.
 - **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
 
 ### Zwei Rechner: HP-35 und HP-45

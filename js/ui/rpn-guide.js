@@ -133,4 +133,4 @@ export function taskTexts() {
   return tx();
 }
 
-export { keys };
+export { keys, stackPic };

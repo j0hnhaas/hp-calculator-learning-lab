@@ -548,3 +548,18 @@ h3 .term { text-transform: inherit; letter-spacing: inherit; }
 .quiz .fb.no { color: #ffb4a5; }
 .lab.lv-simple .controls .icon-btn[data-act="next"] { background: var(--gold); color: #1b1408; border-color: var(--gold); min-width: 56px; }
 .lab.lv-simple .icon-btn.play { background: var(--bg2); color: var(--ink); border-color: var(--line); }
+
+/* ---------------------------------------------------------------- key help mode */
+body.keyhelp-on .key { outline: 1.5px dashed #d6a84dcc; outline-offset: 2px; }
+body.keyhelp-on .key.gold { outline-color: #fff8; }
+.helpbar { border-style: dashed; }
+.helpbar span { flex: 1 1 200px; }
+.st-links { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.kh { padding: 4px 0 12px; }
+.kh + .kh { border-top: 1px solid #3a352d; padding-top: 14px; }
+.kh-name { margin: 2px 0 6px; font-size: 16px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+.kh.gold .kh-name { color: var(--gold); }
+.kh p { margin: 0 0 10px; }
+.kh-stacks { align-items: center; max-width: 340px; }
+.kh-arrow { color: var(--gold); font-size: 20px; }
+.kh-lab { margin-top: 2px; }
