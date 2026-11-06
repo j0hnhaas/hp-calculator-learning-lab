@@ -294,3 +294,21 @@ button { font: inherit; color: inherit; }
   .lab, .power-knob { transition: none; }
   .lab-fab.pulse { animation: none; }
 }
+
+/* ---------------------------------------------------------------- stage 2: convergence plot, custom input */
+.conv-box { margin: 4px 0 14px; }
+.conv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.conv-now { font: 12px var(--mono); color: var(--gold); }
+.conv-wrap { background: #141311; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.conv { display: block; width: 100%; cursor: crosshair; touch-action: pan-y; }
+.conv-note { margin: 8px 2px 0; font-size: 13px; color: #cfc7b8; min-height: 3em; }
+.custom { margin-top: 16px; }
+.custom-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.custom select, .custom input {
+  height: 32px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--bg2); color: var(--ink); font: 13px var(--mono);
+}
+.custom input { width: 9em; }
+.custom select:focus-visible, .custom input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.custom .go { height: 32px; color: #1b1408; background: var(--gold); border-color: var(--gold); font-family: var(--sans); font-weight: 600; }
+.custom-err { margin: 6px 2px 0; font-size: 13px; color: #ff8a73; }
