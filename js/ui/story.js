@@ -7,6 +7,7 @@
 
 import { S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
+import { addStory, mulStory, divStory } from './story-arith.js';
 
 const num = (v) => Number(v) / Number(S);
 const DEG = 180 / Math.PI;
@@ -72,7 +73,10 @@ const L = {
   },
 };
 
-const FN_NAME = { sin: 'sin', cos: 'cos', tan: 'tan', asin: 'sin⁻¹', acos: 'cos⁻¹', atan: 'tan⁻¹', ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√', pow: 'yˣ', pow35: 'xʸ', toP: '→P', toR: '→R' };
+/** which picture fits an algorithm */
+const vizKind = (algo) => (algo === 'ln' || algo === 'exp' ? 'track' : algo === 'sqrt' ? 'sqrt' : ['add', 'mul', 'div'].includes(algo) ? 'arith' : 'vector');
+
+const FN_NAME = { add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', sin: 'sin', cos: 'cos', tan: 'tan', asin: 'sin⁻¹', acos: 'cos⁻¹', atan: 'tan⁻¹', ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√', pow: 'yˣ', pow35: 'xʸ', toP: '→P', toR: '→R' };
 
 /** find the next index ≥ from where pred holds */
 function find(steps, from, pred) {
@@ -416,7 +420,15 @@ export function buildStory(tr, lang) {
   intro.pow35 = de ? `Gesucht ist ${tr.args[0]} hoch ${tr.args[1]}. Trick: xʸ = e^(y · ln x). Also erst ein Logarithmus, dann eine Zinsrechnung.` : `We want ${tr.args[0]} to the power of ${tr.args[1]}. Trick: xʸ = e^(y · ln x). So first a logarithm, then an interest calculation.`;
   intro.toP = de ? 'Gesucht sind Länge und Winkel des Pfeils (x, y). Der Rechner dreht den Pfeil auf den Boden und zählt die Münzen.' : 'We want length and angle of the arrow (x, y). The calculator turns the arrow down to the floor and counts the coins.';
   intro.toR = de ? 'Gesucht sind x und y eines Pfeils mit gegebener Länge und Winkel: x = r · cos θ, y = r · sin θ. Der Rechner rechnet dafür sin und cos.' : 'We want x and y of an arrow with given length and angle: x = r · cos θ, y = r · sin θ. The calculator computes sin and cos for that.';
-  out.push({ title: T.task, text: intro[tr.label] ?? `${name} ${args}`, viz: { kind: st[0]?.algo === 'ln' || st[0]?.algo === 'exp' ? 'track' : st[0]?.algo === 'sqrt' ? 'sqrt' : 'vector', idx: 0 } });
+  const [ya, xa] = tr.args.map((v) => nf(v, lang, 10));
+  intro.add = de ? `Gesucht ist ${ya} + ${xa}. Selbst Addieren ist für den Rechner Handarbeit: Er rechnet Ziffer für Ziffer – wie du schriftlich.` : `We want ${ya} + ${xa}. Even adding is handiwork for the calculator: it goes digit by digit – like you on paper.`;
+  intro.sub = de ? `Gesucht ist ${ya} − ${xa}. Der Rechner subtrahiert Ziffer für Ziffer – wie du schriftlich.` : `We want ${ya} − ${xa}. The calculator subtracts digit by digit – like you on paper.`;
+  intro.mul = de ? `Gesucht ist ${ya} × ${xa}. Der Rechner hat keinen Multiplizierer – nur ein Addierwerk. Wie schafft er das?` : `We want ${ya} × ${xa}. The calculator has no multiplier – only an adder. How does it manage?`;
+  intro.div = de ? `Gesucht ist ${ya} ÷ ${xa}. Dividieren kann der Rechner auch nicht direkt – er zieht ab und zählt.` : `We want ${ya} ÷ ${xa}. The calculator cannot divide directly either – it subtracts and counts.`;
+  intro.inv = de ? `Gesucht ist 1 ÷ ${ya}. Der Kehrwert ist eine ganz normale Division.` : `We want 1 ÷ ${ya}. The reciprocal is an ordinary division.`;
+  intro.sq = de ? `Gesucht ist ${ya}². Das ist ${ya} × ${ya} – also eine Multiplikation durch Addieren.` : `We want ${ya}². That is ${ya} × ${ya} – a multiplication by adding.`;
+  intro.pct = de ? `Gesucht sind ${xa} % von ${ya}: erst ${ya} × ${xa}, dann ÷ 100 – und das ist für den Rechner nur ein Verschieben des Kommas um zwei Stellen.` : `We want ${xa} % of ${ya}: first ${ya} × ${xa}, then ÷ 100 – which for the calculator is just shifting the point by two places.`;
+  out.push({ title: T.task, text: intro[tr.label] ?? `${name} ${args}`, viz: { kind: vizKind(st[0]?.algo), idx: 0 } });
 
   // segments
   let p = 0;
@@ -438,6 +450,18 @@ export function buildStory(tr, lang) {
       const end = lastWhile(st, p, (x) => x.algo === 'exp');
       out.push(...expStory(st, p, end, lang, T));
       p = end + 1;
+    } else if (s.algo === 'add' && s.phase === 'align') {
+      const end = lastWhile(st, p, (x) => x.algo === 'add');
+      out.push(...addStory(st, p, end, lang));
+      p = end + 1;
+    } else if (s.algo === 'mul' && s.phase === 'exp') {
+      const end = lastWhile(st, p, (x) => x.algo === 'mul');
+      out.push(...mulStory(st, p, end, lang));
+      p = end + 1;
+    } else if (s.algo === 'div' && s.phase === 'exp') {
+      const end = lastWhile(st, p, (x) => x.algo === 'div');
+      out.push(...divStory(st, p, end, lang));
+      p = end + 1;
     } else if (s.algo === 'sqrt' && s.phase === 'setup' && tr.label === 'sqrt') {
       const end = lastWhile(st, p, (x) => x.algo === 'sqrt');
       out.push(...sqrtStory(st, p, end, lang, T));
@@ -454,7 +478,7 @@ export function buildStory(tr, lang) {
     text: de
       ? `${tr.resultText ? res : `${name} ${args}${unit} = <b>${res}</b>`}. Gerechnet ganz ohne Multiplizierer – nur mit Verschieben, Addieren und Zählen. Genau so hat es der HP-45 {year} in einem Bruchteil einer Sekunde gemacht.`
       : `${tr.resultText ? res : `${name} ${args}${unit} = <b>${res}</b>`}. Computed without any multiplier – just shifting, adding and counting. That is exactly how the HP-45 did it in a fraction of a second.`,
-    viz: { kind: st.at(-1)?.algo === 'ln' || st.at(-1)?.algo === 'exp' ? 'track' : st.at(-1)?.algo === 'sqrt' ? 'sqrt' : 'vector', idx: st.length - 1 },
+    viz: { kind: vizKind(st.at(-1)?.algo), idx: st.length - 1 },
   });
   return out;
 }

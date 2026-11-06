@@ -11,6 +11,7 @@ import { binTrig, binAtan, ATAN2, B as BIN_ONE, ITER, K as BIN_K } from '../engi
 const ATAN2_NUM = ATAN2.map((v) => Number(v) / Number(BIN_ONE));
 const BIN_LABELS = ['sin', 'cos', 'tan', 'atan'];
 const isBin = (algo) => algo === 'binrot' || algo === 'binvec';
+const isArith = (algo) => algo === 'add' || algo === 'mul' || algo === 'div';
 const colorOf = (s, j) => DECADE_COLORS[(j ?? 0) % DECADE_COLORS.length];
 
 const REG_NAMES = {
@@ -20,7 +21,7 @@ const REG_NAMES = {
 const DECADE_COLORS = ['#e8b04a', '#e0603c', '#4fa3d9', '#6cc28a', '#b48ae0', '#e07ab4', '#c9c26a', '#7ad0d0', '#d08a5a'];
 const OP_LABEL = {
   sin: 'SIN', cos: 'COS', tan: 'TAN', asin: 'SIN⁻¹', acos: 'COS⁻¹', atan: 'TAN⁻¹',
-  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', toP: '→P', toR: '→R',
+  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', toP: '→P', toR: '→R',
 };
 
 const EXAMPLES = [
@@ -34,6 +35,26 @@ const EXAMPLES = [
 
 const num = (v) => Number(v) / Number(S);
 const CONV_PAD_L = 24;
+
+/** "123 × 45 = 5535" for operators, "SIN 30 (DEG) = 0.5" for functions */
+function opText(tr, args, unit) {
+  const res = tr.resultText ?? fmtNum(tr.result);
+  const [y, x] = tr.args.map(fmtNum);
+  const infix = { add: '+', sub: '−', mul: '×', div: '÷' }[tr.label];
+  if (infix) return `${y} ${infix} ${x} = ${res}`;
+  if (tr.label === 'inv') return `1 ÷ ${y} = ${res}`;
+  if (tr.label === 'sq') return `${y}² = ${res}`;
+  if (tr.label === 'pct') return `${x} % × ${y} = ${res}`;
+  return `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${res}`;
+}
+
+/** BigInt digit string with an implied scale of 10^scale → readable decimal */
+function scaled(str, scale) {
+  const neg = str.startsWith('-');
+  const d = (neg ? str.slice(1) : str).padStart(scale + 1, '0');
+  const t = `${d.slice(0, -scale)}.${d.slice(-scale)}`.replace(/0+$/, '').replace(/\.$/, '');
+  return (neg ? '-' : '') + t;
+}
 
 /** Story texts are our own markup (<b>) plus [[term|label]] links. */
 function renderTrusted(str) {
@@ -468,13 +489,14 @@ export class Lab {
     const s = tr.steps[this.i];
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
-    this.el.op.textContent = `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${tr.resultText ?? fmtNum(tr.result)}`;
+    this.el.op.textContent = opText(tr, args, unit);
     this.el.algo.textContent = t('algo.' + s.algo) + (this.binTrace && !isBin(s.algo) ? ` · ${t('method.dec')}` : '');
     this.root.querySelector('.regs-title').innerHTML = rich(t(isBin(s.algo) ? 'lab.registers.bin' : 'lab.registers'));
     this.el.explain.innerHTML = rich(tm(s.msg));
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${tr.steps.length}`;
     this.el.scrub.value = String(this.i);
     this.renderPhases();
+    this.root.querySelector('.conv-box').hidden = !this.conv?.some(Boolean);
     const cv = this.conv?.[this.i];
     this.el.convNow.textContent = cv ? `${cv.quantity}: ${t('lab.conv.digits').replace('{n}', cv.digits >= MAX_DIGITS ? '≥ 16' : cv.digits.toFixed(1))}` : '';
     const noteKey = { pdiv: 'pdiv', vec: 'pdiv', pmul: 'pmul', init: 'pmul', sum: 'sum', resid: 'resid', digit: 'sqrt', rot: 'bin' }[s.phase] ?? 'general';
@@ -490,7 +512,7 @@ export class Lab {
     const st = this.story[this.i];
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
-    this.el.op.textContent = `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${tr.resultText ?? fmtNum(tr.result)}`;
+    this.el.op.textContent = opText(tr, args, unit);
     this.el.algo.textContent = '';
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${this.story.length}`;
     this.el.scrub.value = String(this.i);
@@ -636,6 +658,7 @@ export class Lab {
     const ctx = this.ctx[this.i];
     if (s.algo === 'trig' || s.algo === 'atan' || isBin(s.algo)) this.drawAngle(g, w, h, s, ctx);
     else if (s.algo === 'ln' || s.algo === 'exp') this.drawTrack(g, w, h, s, ctx);
+    else if (isArith(s.algo)) this.drawArith(g, w, h, s);
     else this.drawSqrt(g, w, h, s);
     this.drawConv();
   }
@@ -868,6 +891,7 @@ export class Lab {
       const s = this.trace.steps[idx];
       const ctx = this.ctx[idx];
       if (viz.kind === 'coins') this.drawCoins(g, w, h, s, ctx, viz.j);
+      else if (isArith(s.algo)) this.drawArith(g, w, h, s);
       else if (viz.kind === 'track' && (s.algo === 'ln' || s.algo === 'exp')) this.drawTrack(g, w, h, s, ctx);
       else if (viz.kind === 'sqrt' && s.algo === 'sqrt') this.drawSqrt(g, w, h, s);
       else if (s.algo === 'trig' || s.algo === 'atan') this.drawAngle(g, w, h, s, ctx);
@@ -955,6 +979,94 @@ export class Lab {
     const lbl = `${t('coins.target')} ${nf(target, lang)}° · ${t('coins.paid')} ${nf(paid, lang)}° · ${t('coins.missing')} ${nf(Math.max(0, target - paid), lang, 3)}°`;
     g.fillStyle = ink;
     g.fillText(lbl, bx, by + 36);
+  }
+
+  /** Long arithmetic on paper: digits in columns, the current column highlighted. */
+  drawArith(g, w, h, s) {
+    const css = getComputedStyle(this.root);
+    const ink = css.getPropertyValue('--lab-ink').trim() || '#ddd';
+    const dim = css.getPropertyValue('--lab-dim').trim() || '#666';
+    const hot = '#ff6a55';
+    const rows = [];
+    const steps = this.trace.steps;
+    if (s.algo === 'add') {
+      const A = s.regs.A ?? steps.find((x) => x.algo === 'add' && x.regs?.A)?.regs.A;
+      const B = s.regs.B ?? steps.find((x) => x.algo === 'add' && x.regs?.B)?.regs.B;
+      const sub = steps.some((x) => x.algo === 'add' && x.sub);
+      if (A) rows.push({ label: ' ', text: A });
+      if (B) rows.push({ label: sub ? '−' : '+', text: B, line: true });
+      if (s.regs.S) rows.push({ label: '=', text: s.regs.S, result: true });
+    } else if (s.algo === 'mul') {
+      const ref = s.regs.A ? s : steps.find((x) => x.algo === 'mul' && x.regs?.A);
+      if (ref) {
+        rows.push({ label: ' ', text: ref.regs.A });
+        rows.push({ label: '×', text: ref.regs.B, line: true, hiFromRight: s.phase === 'mdigit' ? s.i : undefined });
+      }
+      if (s.regs.P) rows.push({ label: '=', text: s.regs.P.includes('.') ? s.regs.P : scaled(s.regs.P, 18), result: true });
+    } else {
+      const Braw = s.regs.B ?? steps.find((x) => x.algo === 'div' && x.regs?.B)?.regs.B;
+      const B = Braw ? scaled(Braw, 9) : undefined;
+      if (s.phase === 'qdigit') {
+        rows.push({ label: t('arith.rest'), text: scaled(s.before, 9) });
+        rows.push({ label: '−', text: `${s.digit} × ${B}`, line: true });
+        rows.push({ label: '=', text: scaled(s.after, 9) });
+        rows.push({ label: t('arith.quot'), text: s.regs.Q, result: true, hiFromRight: 0 });
+      } else {
+        if (s.regs.R) rows.push({ label: t('arith.rest'), text: scaled(s.regs.R, 9) });
+        if (B) rows.push({ label: '÷', text: B, line: true });
+        if (s.regs.Q) rows.push({ label: '=', text: s.regs.Q, result: true });
+      }
+    }
+    const n = Math.max(...rows.map((r) => r.text.length), 4);
+    const fs = Math.max(10, Math.min(22, (w - 80) / (n * 0.62)));
+    const cw = fs * 0.62;
+    const x0 = w - 20 - n * cw; // right-aligned columns
+    let y = 34;
+    g.textBaseline = 'alphabetic';
+    for (const r of rows) {
+      g.font = `600 ${Math.min(16, fs)}px ui-monospace, Menlo, Consolas, monospace`;
+      g.fillStyle = dim;
+      g.textAlign = 'right';
+      g.fillText(r.label, x0 - 10, y);
+      g.textAlign = 'left';
+      g.font = `${r.result ? '700 ' : ''}${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      const off = n - r.text.length;
+      for (let k = 0; k < r.text.length; k++) {
+        const fromRight = r.text.length - 1 - k;
+        let col = r.result ? '#ff8a73' : ink;
+        if (s.algo === 'add' && s.phase === 'col' && r.text.replace('.', '').length && this.colHit(r.text, k, s.col)) col = hot;
+        if (r.hiFromRight !== undefined && this.digitFromRight(r.text, k) === r.hiFromRight) col = hot;
+        g.fillStyle = col;
+        g.fillText(r.text[k], x0 + (off + k) * cw, y);
+        void fromRight;
+      }
+      if (r.line) {
+        g.strokeStyle = dim;
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(x0 - 30, y + fs * 0.45);
+        g.lineTo(w - 14, y + fs * 0.45);
+        g.stroke();
+      }
+      y += fs * 1.55;
+    }
+    g.font = '12px ui-monospace, Menlo, Consolas, monospace';
+    g.fillStyle = dim;
+    const count = s.adds ?? s.subs;
+    if (count !== undefined) g.fillText(`${s.algo === 'div' ? t('arith.subs') : t('arith.adds')}: ${count}`, 14, h - 14);
+  }
+
+  /** is character k of a "d.ddd" digit string the column `col` (0 = first digit)? */
+  colHit(text, k, col) {
+    if (text[k] === '.') return false;
+    const digitIndex = text.slice(0, k + 1).replace('.', '').length - 1;
+    return digitIndex === col;
+  }
+
+  /** index of character k counted in digits from the right (ignoring the point) */
+  digitFromRight(text, k) {
+    if (text[k] === '.' || /\s/.test(text[k])) return -1;
+    return text.slice(k + 1).replace(/[^0-9]/g, '').length;
   }
 
   /** Convergence plot: correct digits per step. */

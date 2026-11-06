@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as f from '../js/engine/functions.js';
 import { buildStory } from '../js/ui/story.js';
+import * as arith from '../js/engine/arith.js';
 
 const CASES = [
   ['sin', [30], 'DEG', (t) => f.trig('sin', 30, 'DEG', t)],
@@ -17,6 +18,12 @@ const CASES = [
   ['exp10', [-2.5], null, (t) => f.exp10(-2.5, t)],
   ['sqrt', [2], null, (t) => f.sqrt(2, t)],
   ['pow', [2, 10], null, (t) => f.pow(2, 10, t)],
+  ['add', [123.4, 5.67], null, (t) => arith.add(123.4, 5.67, t)],
+  ['sub', [1, 0.9], null, (t) => arith.sub(1, 0.9, t)],
+  ['mul', [123, 45], null, (t) => arith.mul(123, 45, t)],
+  ['div', [100, 7], null, (t) => arith.div(100, 7, t)],
+  ['inv', [4], null, (t) => arith.div(1, 4, t, 'inv')],
+  ['sq', [7], null, (t) => arith.mul(7, 7, t, 'sq')],
 ];
 
 test('every function gets a short story with valid pictures, in both languages', () => {
