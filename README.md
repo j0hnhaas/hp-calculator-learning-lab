@@ -62,6 +62,15 @@ Ein Schiebeschalter auf der Silberleiste wechselt zwischen dem **HP-35** (1972) 
     - eine Vergleichstabelle (Mikroschritte, Additionen, Konstanten, Verstärkung K, Zahlenformat, Genauigkeit bei kleinen Winkeln)
 - **PWA:** installierbar und offline nutzbar, Oberfläche auf Deutsch und Englisch.
 
+### Grundrechenarten in BCD
+
+Auch + − × ÷ rechnet die Simulation wie der echte Rechner, Ziffer für Ziffer in Dezimalziffern und nur mit Addieren und Verschieben:
+- **+ und −:** Komma ausrichten (die kleinere Zahl verschieben), dann Stelle für Stelle mit Übertrag bzw. Borgen, normalisieren, auf 10 Stellen runden (kaufmännisch).
+- **×:** schriftlich, also für jede Ziffer des zweiten Faktors entsprechend oft addieren und verschieben.
+- **÷:** schriftlich, also abziehen, so oft es geht, und zählen. Das ist dieselbe Idee wie die Pseudo-Division.
+
+Weil dezimal gerechnet wird, ergibt 0,1 + 0,2 genau 0,3.
+
 ### Die Algorithmen (dezimales CORDIC nach Volder/Meggitt)
 
 | Funktion | Pseudo-Division | Pseudo-Multiplikation |

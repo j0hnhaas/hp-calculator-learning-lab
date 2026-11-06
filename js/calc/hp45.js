@@ -5,6 +5,7 @@
 import * as fn from '../engine/functions.js';
 import { CalcError } from '../engine/functions.js';
 import { round10 } from '../engine/decimal.js';
+import * as arith from '../engine/arith.js';
 import { ALL_KEYS } from './keys.js';
 
 const MAX = 9.999999999e99;
@@ -316,28 +317,48 @@ export class HP45 {
         this.angle = op.toUpperCase();
         this.lift = true;
         return;
-      case 'add': this.binary((y, x) => y + x); return { busy: 40 };
-      case 'sub': this.binary((y, x) => y - x); return { busy: 40 };
-      case 'mul': this.binary((y, x) => y * x); return { busy: 60 };
-      case 'div':
-        this.binary((y, x) => {
-          if (x === 0) throw new CalcError('div0');
-          return y / x;
-        });
-        return { busy: 80 };
-      case 'inv':
-        this.unary((x) => {
-          if (x === 0) throw new CalcError('div0');
-          return 1 / x;
-        });
-        return { busy: 80 };
-      case 'sq': this.unary((x) => x * x); return { busy: 60 };
-      case 'pct': {
+      // basic arithmetic: decimal (BCD) long arithmetic with a trace for the lab
+      case 'add':
+      case 'sub':
+      case 'mul':
+      case 'div': {
         this.terminate();
-        this.lastX = this.x;
-        this.x = clamp((this.stack[1] * this.x) / 100);
+        const [x, y] = this.stack;
+        const f = { add: arith.add, sub: arith.sub, mul: arith.mul, div: arith.div }[op];
+        const r = this.traced(op, [y, x], (t) => f(y, x, t));
+        this.binary(() => r.trace.result);
+        r.busy = Math.min(r.busy, op === 'add' || op === 'sub' ? 50 : 110);
+        return r;
+      }
+      case 'inv': {
+        this.terminate();
+        const x = this.x;
+        const r = this.traced('inv', [x], (t) => arith.div(1, x, t, 'inv'));
+        this.unary(() => r.trace.result);
+        r.busy = Math.min(r.busy, 110);
+        return r;
+      }
+      case 'sq': {
+        this.terminate();
+        const x = this.x;
+        const r = this.traced('sq', [x], (t) => arith.mul(x, x, t, 'sq'));
+        this.unary(() => r.trace.result);
+        r.busy = Math.min(r.busy, 110);
+        return r;
+      }
+      case 'pct': {
+        // x % of y: y × x, then ÷ 100 is just shifting the decimal point by two places
+        this.terminate();
+        const [x, y] = this.stack;
+        const r = this.traced('pct', [y, x], (t) => {
+          const p = arith.mul(y, x, t, 'pct');
+          return round10(p / 100);
+        });
+        this.lastX = x;
+        this.x = clamp(r.trace.result);
         this.lift = true;
-        return { busy: 80 };
+        r.busy = Math.min(r.busy, 110);
+        return r;
       }
       case 'dpct': {
         this.terminate();
