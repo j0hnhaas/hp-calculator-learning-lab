@@ -1,6 +1,6 @@
 // The "Inside" lab: replays the decimal CORDIC trace step by step.
 
-import { t, tm, sup, sub, p10, onLang, getLang } from '../i18n.js';
+import { t, tm, sup, sub, p10, onLang, getLang, rich } from '../i18n.js';
 import { fmtFixed, S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
 import * as fn from '../engine/functions.js';
@@ -78,7 +78,7 @@ export class Lab {
         <h2 id="lab-title" data-i18n="lab.title"></h2>
         <button type="button" class="lab-close icon-btn" data-i18n-title="lab.close">✕</button>
       </div>
-      <div class="lab-empty"><p data-i18n="lab.empty"></p></div>
+      <div class="lab-empty"><p data-i18n-rich="lab.empty"></p></div>
       <div class="lab-body" hidden>
         <div class="lab-op"><span class="op-text"></span><span class="op-algo"></span></div>
         <div class="method" role="group" hidden>
@@ -89,7 +89,7 @@ export class Lab {
         <div class="viz-wrap"><canvas class="viz"></canvas></div>
         <p class="explain" aria-live="polite"></p>
         <div class="conv-box">
-          <div class="conv-head"><h3 data-i18n="lab.conv.title"></h3><span class="conv-now"></span></div>
+          <div class="conv-head"><h3 data-i18n-rich="lab.conv.title"></h3><span class="conv-now"></span></div>
           <div class="conv-wrap"><canvas class="conv" aria-hidden="true"></canvas></div>
           <p class="conv-note"></p>
         </div>
@@ -108,7 +108,7 @@ export class Lab {
         </div>
         <div class="tables">
           <div class="regs"><h3 class="regs-title"></h3><div class="reg-list"></div></div>
-          <div class="consts"><h3 data-i18n="lab.constants"></h3><table class="const-table"></table></div>
+          <div class="consts"><h3 data-i18n-rich="lab.constants"></h3><table class="const-table"></table></div>
         </div>
         <div class="compare" hidden></div>
       </div>
@@ -128,7 +128,7 @@ export class Lab {
         </div>
         <p class="custom-err" hidden></p>
       </form>
-      <details class="about"><summary data-i18n="lab.about.title"></summary><p data-i18n="lab.about.body"></p></details>`;
+      <details class="about"><summary data-i18n="lab.about.title"></summary><p data-i18n-rich="lab.about.body"></p></details>`;
 
     const q = (s) => this.root.querySelector(s);
     this.el = {
@@ -303,7 +303,7 @@ export class Lab {
         ${row('format', t('cmp.format.dec'), t('cmp.format.bin'))}
         ${row('small', t('cmp.small.dec'), t('cmp.small.bin'))}
       </table>
-      <p class="cmp-note">${t('cmp.conclusion')}</p>`;
+      <p class="cmp-note">${rich(t('cmp.conclusion'))}</p>`;
   }
 
   /** Precompute per-step context: phase groups and the target of each algorithm run. */
@@ -380,15 +380,15 @@ export class Lab {
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
     this.el.op.textContent = `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${tr.resultText ?? fmtNum(tr.result)}`;
     this.el.algo.textContent = t('algo.' + s.algo) + (this.binTrace && !isBin(s.algo) ? ` · ${t('method.dec')}` : '');
-    this.root.querySelector('.regs-title').textContent = t(isBin(s.algo) ? 'lab.registers.bin' : 'lab.registers');
-    this.el.explain.textContent = tm(s.msg);
+    this.root.querySelector('.regs-title').innerHTML = rich(t(isBin(s.algo) ? 'lab.registers.bin' : 'lab.registers'));
+    this.el.explain.innerHTML = rich(tm(s.msg));
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${tr.steps.length}`;
     this.el.scrub.value = String(this.i);
     this.renderPhases();
     const cv = this.conv?.[this.i];
     this.el.convNow.textContent = cv ? `${cv.quantity}: ${t('lab.conv.digits').replace('{n}', cv.digits >= MAX_DIGITS ? '≥ 16' : cv.digits.toFixed(1))}` : '';
     const noteKey = { pdiv: 'pdiv', vec: 'pdiv', pmul: 'pmul', init: 'pmul', sum: 'sum', resid: 'resid', digit: 'sqrt', rot: 'bin' }[s.phase] ?? 'general';
-    this.el.convNote.textContent = t('lab.conv.note.' + noteKey);
+    this.el.convNote.innerHTML = rich(t('lab.conv.note.' + noteKey));
     this.renderRegs(s);
     this.renderConsts(s);
     this.draw();

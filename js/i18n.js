@@ -1,3 +1,5 @@
+import { GLOSSARY } from './glossary.js';
+
 // Bilingual UI texts (Deutsch / English).
 
 const SUP = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
@@ -8,18 +10,19 @@ const lnC = (j) => (j === 0 ? 'ln 2' : `ln(1+${p10(j)})`);
 const FN = { sin: 'sin', cos: 'cos', tan: 'tan' };
 
 const de = {
-  'app.title': 'HP-45 · Dezimales CORDIC',
-  'app.subtitle': 'Simulation des HP-45 (1973) mit Blick ins Innere',
-  'lab.title': 'Blick ins Innere',
-  'lab.toggle': 'Inside',
+  'app.title': 'Wie rechnet ein Taschenrechner von {year} den Sinus – ohne multiplizieren zu können?',
+  'app.subtitle': 'Tipp eine Zahl, drück SIN – und schau ihm beim Rechnen zu. Eine Simulation des HP-45 mit [[cordic|CORDIC]].',
+  'app.doctitle': 'HP-45 · So rechnet ein Taschenrechner',
+  'lab.title': 'So rechnet der HP-45',
+  'lab.toggle': '🔍 So rechnet er',
   'lab.close': 'Schließen',
-  'lab.empty': 'Drücke am Rechner eine Funktion wie SIN, COS, TAN, ln, eˣ, yˣ oder √x – oder wähle ein Beispiel. Hier siehst du dann Schritt für Schritt, wie der HP-45 sie nur mit Schieben und Addieren berechnet.',
+  'lab.empty': 'Drücke am Rechner eine Funktion wie SIN, COS, TAN, ln, eˣ, yˣ oder √x – oder wähle ein Beispiel. Hier siehst du dann Schritt für Schritt, wie der HP-45 sie nur mit [[shift|Schieben]] und Addieren berechnet.',
   'lab.examples': 'Beispiele',
   'lab.step': 'Schritt',
   'lab.of': 'von',
-  'lab.registers': 'Register (BCD)',
-  'lab.registers.bin': 'Register (binär)',
-  'lab.constants': 'ROM-Konstanten',
+  'lab.registers': '[[register|Register]] ([[bcd|BCD]])',
+  'lab.registers.bin': '[[register|Register]] ([[binary|binär]])',
+  'lab.constants': '[[rom|ROM-Konstanten]]',
   'lab.count': 'q',
   'lab.speed': 'Tempo',
   'lab.autoplay': 'Auto-Play',
@@ -29,13 +32,13 @@ const de = {
   'lab.play': 'Abspielen / Pause',
   'lab.last': 'Ende',
   'lab.result': 'Ergebnis',
-  'lab.conv.title': 'Konvergenz – richtige Stellen',
+  'lab.conv.title': '[[convergence|Konvergenz]] – richtige Stellen',
   'lab.conv.digits': '{n} Stellen richtig',
   'lab.conv.display': 'Anzeige: 10 Stellen',
-  'lab.conv.note.pdiv': 'Pseudo-Division: Jede Dekade liefert ungefähr eine weitere richtige Stelle – wie beim schriftlichen Dividieren. Die Zähler qⱼ sind die „Ziffern“ des Winkels bzw. Logarithmus.',
-  'lab.conv.note.pmul': 'Pseudo-Multiplikation: Hier wird das Ergebnis aus den Zählern zurückgebaut – mit den kleinsten Schritten zuerst. Deshalb bleibt die Kurve lange unten und springt erst bei den letzten, großen Schritten auf volle Genauigkeit.',
+  'lab.conv.note.pdiv': '[[pseudodiv|Pseudo-Division]]: Jede [[decade|Dekade]] liefert ungefähr eine weitere richtige Stelle – wie beim schriftlichen Dividieren. Die Zähler qⱼ sind die „Ziffern“ des Winkels bzw. Logarithmus.',
+  'lab.conv.note.pmul': '[[pseudomul|Pseudo-Multiplikation]]: Hier wird das Ergebnis aus den Zählern zurückgebaut – mit den kleinsten Schritten zuerst. Deshalb bleibt die Kurve lange unten und springt erst bei den letzten, großen Schritten auf volle Genauigkeit.',
   'lab.conv.note.sum': 'Konstanten aufsummieren: auch hier die kleinsten zuerst. Erst wenn die großen Konstanten dazukommen, stimmt das Ergebnis.',
-  'lab.conv.note.resid': 'Der Rest ist so klein, dass die Näherung (tan r ≈ r bzw. ln(1+r) ≈ r) alle weiteren Stellen liefert.',
+  'lab.conv.note.resid': 'Der [[residual|Rest]] ist so klein, dass die Näherung (tan r ≈ r bzw. ln(1+r) ≈ r) alle weiteren Stellen liefert.',
   'lab.conv.note.sqrt': 'Wurzel: Jede gefundene Ziffer ist sofort endgültig – die Genauigkeit wächst um genau eine Stelle pro Schritt.',
   'lab.conv.note.general': 'Die gestrichelte Linie markiert die 10 Stellen der Anzeige. Intern rechnet die Simulation mit Schutzstellen darüber hinaus.',
   'lab.custom.title': 'Eigene Eingabe',
@@ -67,11 +70,11 @@ const de = {
   'cmp.small': 'Sehr kleine Winkel',
   'cmp.small.dec': 'relativ genau (tan r ≈ r)',
   'cmp.small.bin': 'nur absolut genau (≈ 2⁻³⁶)',
-  'cmp.conclusion': 'Der Aufwand ist ähnlich – aber der HP-45 rechnet von der Tastatur bis zur Anzeige in BCD. Dort ist das Verschieben um eine Dezimalstelle trivial, das Verschieben um ein Bit nicht. Außerdem dreht die dezimale Variante nur vorwärts und zählt, die Verlängerung des Vektors kürzt sich heraus, und sie braucht nur 7 statt 36 Konstanten im knappen ROM.',
+  'cmp.conclusion': 'Der Aufwand ist ähnlich – aber der HP-45 rechnet von der Tastatur bis zur Anzeige in [[bcd|BCD]]. Dort ist das Verschieben um eine Dezimalstelle trivial, das Verschieben um ein Bit nicht. Außerdem dreht die dezimale Variante nur vorwärts und zählt, die Verlängerung des Vektors kürzt sich heraus, und sie braucht nur 7 statt 36 Konstanten im knappen ROM.',
   'lab.conv.note.bin': 'Binär: Jede Iteration bringt ein Bit, also etwa 0,3 Dezimalstellen – die Kurve steigt gleichmäßig. Der Vektor pendelt dabei um das Ziel (σ = + oder −). Die gepunktete Linie zeigt zum Vergleich das dezimale Verfahren.',
   'lab.zoom': 'Zoom',
   'lab.about.title': 'Was passiert hier?',
-  'lab.about.body': 'Der HP-45 hat keinen Multiplizierer. Er rechnet in BCD – jede Stelle eine Dezimalziffer – und kann Ziffern nur verschieben (×10, ÷10) und addieren. Trotzdem berechnet er sin, ln oder eˣ auf 10 Stellen genau. Der Trick ist eine dezimale Variante von CORDIC (Volder 1959, Meggitt 1962): Ein Winkel wird in Vielfache der ROM-Konstanten atan(1), atan(0,1), atan(0,01) … zerlegt (Pseudo-Division), danach wird ein Vektor genau so oft um diese Winkel gedreht (Pseudo-Multiplikation). Jede Drehung um atan(10⁻ʲ) ist nur „Wert um j Stellen verschieben und addieren“.',
+  'lab.about.body': 'Der HP-45 hat keinen Multiplizierer. Er rechnet in [[bcd|BCD]] – jede Stelle eine Dezimalziffer – und kann Ziffern nur [[shift|verschieben]] (×10, ÷10) und addieren. Trotzdem berechnet er sin, ln oder eˣ auf 10 Stellen genau. Der Trick ist eine dezimale Variante von [[cordic|CORDIC]] (Volder 1959, Meggitt 1962): Ein Winkel wird in Vielfache der [[rom|ROM-Konstanten]] atan(1), atan(0,1), atan(0,01) … zerlegt ([[pseudodiv|Pseudo-Division]]), danach wird ein [[vector|Zeiger]] genau so oft um diese Winkel gedreht ([[pseudomul|Pseudo-Multiplikation]]). Jede Drehung um atan(10⁻ʲ) ist nur „Wert um j Stellen verschieben und addieren“.',
   'phase.reduce': 'Reduktion',
   'phase.pdiv': 'Pseudo-Division',
   'phase.init': 'Startwert',
@@ -88,6 +91,14 @@ const de = {
   'settings.lang': 'EN',
   'settings.timing': 'Originaltempo',
   'settings.sound': 'Klick',
+  'status.stack': 'Stapel',
+  'status.display': '← Anzeige',
+  'status.memlabel': 'Speicher',
+  'rpn.open': 'Wie tippe ich? (RPN)',
+  'rpn.coach': 'Neu hier? Dieser Rechner hat keine =-Taste – er tippt anders als dein Handy.',
+  'glossary.image': 'Stell dir vor',
+  'glossary.more': 'Genauer',
+  'glossary.see': 'Siehe auch',
   'status.shift': 'SHIFT',
   'status.arc': 'ARC',
   'status.auto': 'AUTO',
@@ -101,49 +112,49 @@ const de = {
   'algo.exp': 'Exponential',
   'algo.sqrt': 'Quadratwurzel',
   msg: {
-    'trig.reduce': (p) => `Argument auf den ${p.quadrant}. Quadranten reduziert (exakt dezimal, Modus ${p.mode}) und in Radiant umgerechnet. Ab hier rechnet der HP-45 nur noch mit einem Winkel θ zwischen 0 und π/2.`,
-    'trig.pdiv.start': `Pseudo-Division: Wir ziehen von θ so oft wie möglich ${atanC(0)} = π/4 ab, dann ${atanC(1)}, ${atanC(2)} … und zählen mit. Das ist wie schriftliches Dividieren – nur mit Winkeln.`,
+    'trig.reduce': (p) => `Argument auf den ${p.quadrant}. [[quadrant|Quadranten]] reduziert (exakt dezimal, Modus ${p.mode}) und in [[radian|Radiant]] umgerechnet. Ab hier rechnet der HP-45 nur noch mit einem Winkel θ zwischen 0 und π/2.`,
+    'trig.pdiv.start': `[[pseudodiv|Pseudo-Division]]: Wir ziehen von θ so oft wie möglich ${atanC(0)} = π/4 ab, dann ${atanC(1)}, ${atanC(2)} … und zählen mit. Das ist wie schriftliches Dividieren – nur mit Winkeln.`,
     'trig.pdiv.sub': (p) => `θ − ${atanC(p.j)}: passt noch. Zähler q${sub(p.j)} = ${p.n}.`,
     'trig.pdiv.decade': (p) => `Dekade ${p.j} fertig: ${atanC(p.j)} passt ${p.n}× hinein. Weiter mit der nächstkleineren Konstante.`,
     'trig.small': 'Der Winkel ist so klein, dass sin θ = tan θ = θ auf alle 10 Stellen gilt – keine Drehung nötig.',
-    'trig.init': 'Übrig bleibt ein winziger Rest r. Für so kleine Winkel gilt tan r ≈ r. Startvektor: X = 1, Y = r.',
-    'trig.pmul.rot': (p) => `Drehung um ${atanC(p.j)} (${p.k}/${p.n}): X′ = X − Y·${p10(p.j)}, Y′ = Y + X·${p10(p.j)}. Nur Ziffern um ${p.j} Stelle(n) verschieben und addieren!`,
-    'trig.norm': 'Jetzt gilt Y/X = tan θ. Für sin und cos braucht der HP-45 noch die Länge des Vektors: R = √(X² + Y²). Die Länge ist durch die Drehungen leicht gewachsen – das kürzt sich aber heraus.',
+    'trig.init': 'Übrig bleibt ein winziger [[residual|Rest]] r. Für so kleine Winkel gilt tan r ≈ r. [[vector|Startvektor]]: X = 1, Y = r.',
+    'trig.pmul.rot': (p) => `Drehung um ${atanC(p.j)} (${p.k}/${p.n}): X′ = X − Y·${p10(p.j)}, Y′ = Y + X·${p10(p.j)}. Nur Ziffern um ${p.j} Stelle(n) [[shift|verschieben]] und addieren!`,
+    'trig.norm': 'Jetzt gilt Y/X = tan θ. Für sin und cos braucht der HP-45 noch die Länge des [[vector|Vektors]]: R = √(X² + Y²). Die Länge ist durch die Drehungen leicht gewachsen – das kürzt sich aber heraus.',
     'trig.final.tan': 'tan θ = Y / X – eine einzige echte Division am Schluss.',
     'trig.final.cot': 'Ungerader Quadrant: tan = −X / Y.',
     'trig.final.sin': 'sin θ = Y / R, dann Vorzeichen und Quadrant angepasst.',
     'trig.final.cos': 'cos θ = X / R, dann Vorzeichen und Quadrant angepasst.',
     'sqrt.setup': (p) => `Zahl mit geradem Exponenten (10${sup(p.e)}) normiert. Die Wurzel wird Ziffer für Ziffer bestimmt.`,
-    'sqrt.digit': (p) => `Ziffer ${p.k}: ungerade Zahlen 20r+1, 20r+3, … vom Rest abgezogen – ${p.d}× ging es. Die nächste Ziffer ist ${p.d}.`,
+    'sqrt.digit': (p) => `Ziffer ${p.k}: [[sqrtdigits|ungerade Zahlen]] 20r+1, 20r+3, … vom Rest abgezogen – ${p.d}× ging es. Die nächste Ziffer ist ${p.d}.`,
     'sqrt.final': 'Fertig: Die Wurzel ist entstanden, ohne ein einziges Mal zu multiplizieren.',
     'atan.setup': () => 'Startvektor (1, x). Sein Winkel zur x-Achse ist atan x.',
     'atan.setup.asin': 'asin x: Vektor (√(1−x²), x) – sein Winkel ist asin x. Erst die Wurzel, dann zurückdrehen.',
     'atan.setup.acos': 'acos x: Vektor (x, √(1−x²)) – sein Winkel ist acos x.',
     'atan.setup.polar': '→P: Der Vektor (x, y) wird auf die x-Achse zurückgedreht; die Drehwinkel ergeben θ.',
-    'atan.start': `Vektorisierung: Wir drehen den Vektor um −${atanC(0)}, −${atanC(1)} … zurück, solange er oberhalb der x-Achse bleibt, und zählen mit.`,
+    'atan.start': `[[vectoring|Vektorisierung]]: Wir drehen den Vektor um −${atanC(0)}, −${atanC(1)} … zurück, solange er oberhalb der x-Achse bleibt, und zählen mit.`,
     'atan.rot': (p) => `Zurückdrehen um ${atanC(p.j)}: X′ = X + Y·${p10(p.j)}, Y′ = Y − X·${p10(p.j)}. q${sub(p.j)} = ${p.n}.`,
     'atan.decade': (p) => `Dekade ${p.j}: ${p.n} Drehung(en). Noch eine Drehung würde unter die x-Achse führen.`,
     'atan.resid': 'Der Vektor liegt fast auf der x-Achse. Restwinkel r ≈ Y / X (eine Division).',
     'atan.sum': (p) => `θ += ${atanC(p.j)} (${p.k}/${p.n}) – die Drehungen werden als Winkel aufsummiert.`,
     'atan.final': (p) => `Ergebnis in ${p.mode} umgerechnet.`,
     'polar.final': 'r = √(x² + y²) und θ sind fertig.',
-    'ln.setup': (p) => `x = M · 10${sup(p.e)}. Zuerst ln M für die Mantisse 1 ≤ M < 10.`,
-    'ln.start': `Pseudo-Division: Wir bauen M als Produkt aus 2, 1,1, 1,01 … auf. Multiplizieren mit (1+${p10(1)}) heißt: Wert + Wert um 1 Stelle verschoben.`,
+    'ln.setup': (p) => `x = M · 10${sup(p.e)}. Zuerst ln M für die [[mantissa|Mantisse]] 1 ≤ M < 10.`,
+    'ln.start': `[[pseudodiv|Pseudo-Division]]: Wir bauen M als Produkt aus 2, 1,1, 1,01 … auf. Multiplizieren mit (1+${p10(1)}) heißt: Wert + Wert um 1 Stelle verschoben.`,
     'ln.mul': (p) => `P ← P · (1+${p10(p.j)}) – passt noch unter M. q${sub(p.j)} = ${p.n}.`,
     'ln.decade': (p) => `Dekade ${p.j}: Faktor ${p.j === 0 ? '2' : `1+${p10(p.j)}`} passt ${p.n}×.`,
-    'ln.resid': 'Rest: M/P = 1 + r mit winzigem r, und ln(1+r) ≈ r.',
+    'ln.resid': '[[residual|Rest]]: M/P = 1 + r mit winzigem r, und ln(1+r) ≈ r.',
     'ln.sum': (p) => `ln M += ${lnC(p.j)} (${p.k}/${p.n}) – aus der ROM-Tabelle.`,
     'ln.exp10': (p) => `Dazu ${p.e} · ln 10 für den Exponenten.`,
     'ln.final': 'ln x fertig.',
     'log.final': 'log x = ln x / ln 10.',
     'exp.setup': (p) => `x = ${p.k} · ln 10 + r mit 0 ≤ r < ln 10. Dann ist eˣ = eʳ · 10${sup(p.k)}.`,
-    'exp.start': `Pseudo-Division: Von r werden ${lnC(0)}, ${lnC(1)} … so oft wie möglich abgezogen.`,
+    'exp.start': `[[pseudodiv|Pseudo-Division]]: Von r werden ${lnC(0)}, ${lnC(1)} … so oft wie möglich abgezogen.`,
     'exp.sub': (p) => `r − ${lnC(p.j)}: passt. q${sub(p.j)} = ${p.n}.`,
     'exp.decade': (p) => `Dekade ${p.j}: ${p.n}×.`,
     'exp.init': 'Winziger Rest ρ: e^ρ ≈ 1 + ρ. Startwert P = 1 + ρ.',
     'exp.mul': (p) => `P ← P + P·${p10(p.j)} (${p.k}/${p.n}) – multiplizieren mit (1+${p10(p.j)}) durch Schieben und Addieren.`,
-    'bin.init': 'Klassisches CORDIC: Startvektor (K, 0) mit K = 0,6072529350. Damit ist die Verlängerung durch alle 36 Drehungen schon vorab ausgeglichen. Z = θ ist der noch zu drehende Winkel.',
-    'bin.rot': (p) => `Iteration ${p.i}: Z ist ${p.plus ? 'positiv' : 'negativ'} → Drehung um ${p.plus ? '+' : '−'}atan(2${sup(-p.i)}): X′ = X ${p.plus ? '−' : '+'} Y·2${sup(-p.i)}, Y′ = Y ${p.plus ? '+' : '−'} X·2${sup(-p.i)}. Verschieben um ${p.i} Bit und addieren.`,
+    'bin.init': 'Klassisches [[cordic|CORDIC]]: Startvektor (K, 0) mit K = 0,6072529350. Damit ist die [[gain|Verlängerung]] durch alle 36 Drehungen schon vorab ausgeglichen. Z = θ ist der noch zu drehende Winkel.',
+    'bin.rot': (p) => `Iteration ${p.i}: Z ist ${p.plus ? 'positiv' : 'negativ'} → Drehung um ${p.plus ? '+' : '−'}atan(2${sup(-p.i)}): X′ = X ${p.plus ? '−' : '+'} Y·2${sup(-p.i)}, Y′ = Y ${p.plus ? '+' : '−'} X·2${sup(-p.i)}. [[shift|Verschieben]] um ${p.i} Bit und addieren.`,
     'bin.final.sin': 'sin θ = Y – direkt, ohne Division, weil K die Verlängerung schon ausgeglichen hat.',
     'bin.final.cos': 'cos θ = X – direkt, ohne Division.',
     'bin.final.tan': 'tan θ = Y / X.',
@@ -155,18 +166,19 @@ const de = {
 };
 
 const en = {
-  'app.title': 'HP-45 · Decimal CORDIC',
-  'app.subtitle': 'A simulation of the HP-45 (1973) with a look inside',
-  'lab.title': 'Inside the HP-45',
-  'lab.toggle': 'Inside',
+  'app.title': 'How does a {year} pocket calculator compute a sine – without being able to multiply?',
+  'app.subtitle': 'Type a number, press SIN – and watch it think. A simulation of the HP-45 using [[cordic|CORDIC]].',
+  'app.doctitle': 'HP-45 · How a pocket calculator computes',
+  'lab.title': 'How the HP-45 calculates',
+  'lab.toggle': '🔍 How it calculates',
   'lab.close': 'Close',
-  'lab.empty': 'Press a function on the calculator such as SIN, COS, TAN, ln, eˣ, yˣ or √x – or pick an example. You will see step by step how the HP-45 computes it with nothing but shifts and additions.',
+  'lab.empty': 'Press a function on the calculator such as SIN, COS, TAN, ln, eˣ, yˣ or √x – or pick an example. You will see step by step how the HP-45 computes it with nothing but [[shift|shifts]] and additions.',
   'lab.examples': 'Examples',
   'lab.step': 'Step',
   'lab.of': 'of',
-  'lab.registers': 'Registers (BCD)',
-  'lab.registers.bin': 'Registers (binary)',
-  'lab.constants': 'ROM constants',
+  'lab.registers': '[[register|Registers]] ([[bcd|BCD]])',
+  'lab.registers.bin': '[[register|Registers]] ([[binary|binary]])',
+  'lab.constants': '[[rom|ROM constants]]',
   'lab.count': 'q',
   'lab.speed': 'Speed',
   'lab.autoplay': 'Auto-play',
@@ -176,13 +188,13 @@ const en = {
   'lab.play': 'Play / pause',
   'lab.last': 'End',
   'lab.result': 'Result',
-  'lab.conv.title': 'Convergence – correct digits',
+  'lab.conv.title': '[[convergence|Convergence]] – correct digits',
   'lab.conv.digits': '{n} digits correct',
   'lab.conv.display': 'display: 10 digits',
-  'lab.conv.note.pdiv': 'Pseudo-division: every decade adds roughly one more correct digit – just like long division. The counters qⱼ are the “digits” of the angle or logarithm.',
-  'lab.conv.note.pmul': 'Pseudo-multiplication: the result is rebuilt from the counters – smallest steps first. That is why the curve stays low for a long time and only jumps to full precision with the last, large steps.',
+  'lab.conv.note.pdiv': '[[pseudodiv|Pseudo-division]]: every [[decade|decade]] adds roughly one more correct digit – just like long division. The counters qⱼ are the “digits” of the angle or logarithm.',
+  'lab.conv.note.pmul': '[[pseudomul|Pseudo-multiplication]]: the result is rebuilt from the counters – smallest steps first. That is why the curve stays low for a long time and only jumps to full precision with the last, large steps.',
   'lab.conv.note.sum': 'Summing the constants: smallest first again. Only when the large constants are added is the result right.',
-  'lab.conv.note.resid': 'The residual is so small that the approximation (tan r ≈ r or ln(1+r) ≈ r) supplies all remaining digits.',
+  'lab.conv.note.resid': 'The [[residual|residual]] is so small that the approximation (tan r ≈ r or ln(1+r) ≈ r) supplies all remaining digits.',
   'lab.conv.note.sqrt': 'Square root: every digit found is final immediately – precision grows by exactly one digit per step.',
   'lab.conv.note.general': 'The dashed line marks the 10 display digits. Internally the simulation keeps guard digits beyond that.',
   'lab.custom.title': 'Your own input',
@@ -214,11 +226,11 @@ const en = {
   'cmp.small': 'Very small angles',
   'cmp.small.dec': 'relatively accurate (tan r ≈ r)',
   'cmp.small.bin': 'only absolutely accurate (≈ 2⁻³⁶)',
-  'cmp.conclusion': 'The effort is similar – but the HP-45 works in BCD from keyboard to display. There, shifting by one decimal digit is trivial, shifting by one bit is not. On top of that the decimal method only rotates forwards and counts, the vector growth cancels out, and it needs only 7 instead of 36 constants in the scarce ROM.',
+  'cmp.conclusion': 'The effort is similar – but the HP-45 works in [[bcd|BCD]] from keyboard to display. There, shifting by one decimal digit is trivial, shifting by one bit is not. On top of that the decimal method only rotates forwards and counts, the vector growth cancels out, and it needs only 7 instead of 36 constants in the scarce ROM.',
   'lab.conv.note.bin': 'Binary: every iteration yields one bit, about 0.3 decimal digits – the curve rises steadily. Meanwhile the vector oscillates around the target (σ = + or −). The dotted line shows the decimal method for comparison.',
   'lab.zoom': 'Zoom',
   'lab.about.title': 'What is going on?',
-  'lab.about.body': 'The HP-45 has no multiplier. It computes in BCD – one decimal digit per nibble – and can only shift digits (×10, ÷10) and add. Still it gets sin, ln or eˣ right to 10 digits. The trick is a decimal variant of CORDIC (Volder 1959, Meggitt 1962): an angle is split into multiples of the ROM constants atan(1), atan(0.1), atan(0.01) … (pseudo-division), then a vector is rotated by exactly those angles (pseudo-multiplication). Every rotation by atan(10⁻ʲ) is just “shift by j digits and add”.',
+  'lab.about.body': 'The HP-45 has no multiplier. It computes in [[bcd|BCD]] – one decimal digit per nibble – and can only [[shift|shift]] digits (×10, ÷10) and add. Still it gets sin, ln or eˣ right to 10 digits. The trick is a decimal variant of [[cordic|CORDIC]] (Volder 1959, Meggitt 1962): an angle is split into multiples of the [[rom|ROM constants]] atan(1), atan(0.1), atan(0.01) … ([[pseudodiv|pseudo-division]]), then a [[vector|pointer]] is rotated by exactly those angles ([[pseudomul|pseudo-multiplication]]). Every rotation by atan(10⁻ʲ) is just “shift by j digits and add”.',
   'phase.reduce': 'Reduction',
   'phase.pdiv': 'Pseudo-division',
   'phase.init': 'Start value',
@@ -235,6 +247,14 @@ const en = {
   'settings.lang': 'DE',
   'settings.timing': 'Original speed',
   'settings.sound': 'Click',
+  'status.stack': 'Stack',
+  'status.display': '← display',
+  'status.memlabel': 'memory',
+  'rpn.open': 'How do I type? (RPN)',
+  'rpn.coach': 'New here? This calculator has no = key – you type differently than on your phone.',
+  'glossary.image': 'Picture this',
+  'glossary.more': 'More detail',
+  'glossary.see': 'See also',
   'status.shift': 'SHIFT',
   'status.arc': 'ARC',
   'status.auto': 'AUTO',
@@ -248,49 +268,49 @@ const en = {
   'algo.exp': 'Exponential',
   'algo.sqrt': 'Square root',
   msg: {
-    'trig.reduce': (p) => `Argument reduced to quadrant ${p.quadrant} (exactly, in decimal, mode ${p.mode}) and converted to radians. From here on the HP-45 only deals with an angle θ between 0 and π/2.`,
-    'trig.pdiv.start': `Pseudo-division: subtract ${atanC(0)} = π/4 from θ as often as possible, then ${atanC(1)}, ${atanC(2)} … and count. Just like long division – with angles.`,
+    'trig.reduce': (p) => `Argument reduced to [[quadrant|quadrant]] ${p.quadrant} (exactly, in decimal, mode ${p.mode}) and converted to [[radian|radians]]. From here on the HP-45 only deals with an angle θ between 0 and π/2.`,
+    'trig.pdiv.start': `[[pseudodiv|Pseudo-division]]: subtract ${atanC(0)} = π/4 from θ as often as possible, then ${atanC(1)}, ${atanC(2)} … and count. Just like long division – with angles.`,
     'trig.pdiv.sub': (p) => `θ − ${atanC(p.j)}: still fits. Counter q${sub(p.j)} = ${p.n}.`,
     'trig.pdiv.decade': (p) => `Decade ${p.j} done: ${atanC(p.j)} fits ${p.n}×. On to the next smaller constant.`,
     'trig.small': 'The angle is so small that sin θ = tan θ = θ to all 10 digits – no rotation needed.',
-    'trig.init': 'A tiny residual r is left. For such small angles tan r ≈ r. Start vector: X = 1, Y = r.',
-    'trig.pmul.rot': (p) => `Rotate by ${atanC(p.j)} (${p.k}/${p.n}): X′ = X − Y·${p10(p.j)}, Y′ = Y + X·${p10(p.j)}. Just shift digits by ${p.j} place(s) and add!`,
-    'trig.norm': 'Now Y/X = tan θ. For sin and cos the HP-45 also needs the vector length R = √(X² + Y²). The rotations made the vector slightly longer – but that cancels out.',
+    'trig.init': 'A tiny [[residual|residual]] r is left. For such small angles tan r ≈ r. [[vector|Start vector]]: X = 1, Y = r.',
+    'trig.pmul.rot': (p) => `Rotate by ${atanC(p.j)} (${p.k}/${p.n}): X′ = X − Y·${p10(p.j)}, Y′ = Y + X·${p10(p.j)}. Just [[shift|shift]] digits by ${p.j} place(s) and add!`,
+    'trig.norm': 'Now Y/X = tan θ. For sin and cos the HP-45 also needs the [[vector|vector]] length R = √(X² + Y²). The rotations made the vector slightly longer – but that cancels out.',
     'trig.final.tan': 'tan θ = Y / X – a single real division at the very end.',
     'trig.final.cot': 'Odd quadrant: tan = −X / Y.',
     'trig.final.sin': 'sin θ = Y / R, then sign and quadrant applied.',
     'trig.final.cos': 'cos θ = X / R, then sign and quadrant applied.',
     'sqrt.setup': (p) => `Number normalised with an even exponent (10${sup(p.e)}). The root is found digit by digit.`,
-    'sqrt.digit': (p) => `Digit ${p.k}: odd numbers 20r+1, 20r+3, … subtracted from the remainder – it worked ${p.d}×. The next digit is ${p.d}.`,
+    'sqrt.digit': (p) => `Digit ${p.k}: [[sqrtdigits|odd numbers]] 20r+1, 20r+3, … subtracted from the remainder – it worked ${p.d}×. The next digit is ${p.d}.`,
     'sqrt.final': 'Done: the square root, without a single multiplication.',
     'atan.setup': () => 'Start vector (1, x). Its angle to the x-axis is atan x.',
     'atan.setup.asin': 'asin x: vector (√(1−x²), x) – its angle is asin x. Square root first, then rotate back.',
     'atan.setup.acos': 'acos x: vector (x, √(1−x²)) – its angle is acos x.',
     'atan.setup.polar': '→P: the vector (x, y) is rotated back onto the x-axis; the rotation angles add up to θ.',
-    'atan.start': `Vectoring: rotate the vector back by −${atanC(0)}, −${atanC(1)} … as long as it stays above the x-axis, and count.`,
+    'atan.start': `[[vectoring|Vectoring]]: rotate the vector back by −${atanC(0)}, −${atanC(1)} … as long as it stays above the x-axis, and count.`,
     'atan.rot': (p) => `Rotate back by ${atanC(p.j)}: X′ = X + Y·${p10(p.j)}, Y′ = Y − X·${p10(p.j)}. q${sub(p.j)} = ${p.n}.`,
     'atan.decade': (p) => `Decade ${p.j}: ${p.n} rotation(s). One more would cross the x-axis.`,
     'atan.resid': 'The vector is almost on the x-axis. Residual angle r ≈ Y / X (one division).',
     'atan.sum': (p) => `θ += ${atanC(p.j)} (${p.k}/${p.n}) – the rotations are summed up as an angle.`,
     'atan.final': (p) => `Result converted to ${p.mode}.`,
     'polar.final': 'r = √(x² + y²) and θ are done.',
-    'ln.setup': (p) => `x = M · 10${sup(p.e)}. First ln M for the mantissa 1 ≤ M < 10.`,
-    'ln.start': `Pseudo-division: build M as a product of 2, 1.1, 1.01 … Multiplying by (1+${p10(1)}) means: value + value shifted by 1 digit.`,
+    'ln.setup': (p) => `x = M · 10${sup(p.e)}. First ln M for the [[mantissa|mantissa]] 1 ≤ M < 10.`,
+    'ln.start': `[[pseudodiv|Pseudo-division]]: build M as a product of 2, 1.1, 1.01 … Multiplying by (1+${p10(1)}) means: value + value shifted by 1 digit.`,
     'ln.mul': (p) => `P ← P · (1+${p10(p.j)}) – still below M. q${sub(p.j)} = ${p.n}.`,
     'ln.decade': (p) => `Decade ${p.j}: factor ${p.j === 0 ? '2' : `1+${p10(p.j)}`} fits ${p.n}×.`,
-    'ln.resid': 'Residual: M/P = 1 + r with tiny r, and ln(1+r) ≈ r.',
+    'ln.resid': '[[residual|Residual]]: M/P = 1 + r with tiny r, and ln(1+r) ≈ r.',
     'ln.sum': (p) => `ln M += ${lnC(p.j)} (${p.k}/${p.n}) – from the ROM table.`,
     'ln.exp10': (p) => `Plus ${p.e} · ln 10 for the exponent.`,
     'ln.final': 'ln x done.',
     'log.final': 'log x = ln x / ln 10.',
     'exp.setup': (p) => `x = ${p.k} · ln 10 + r with 0 ≤ r < ln 10. Then eˣ = eʳ · 10${sup(p.k)}.`,
-    'exp.start': `Pseudo-division: subtract ${lnC(0)}, ${lnC(1)} … from r as often as possible.`,
+    'exp.start': `[[pseudodiv|Pseudo-division]]: subtract ${lnC(0)}, ${lnC(1)} … from r as often as possible.`,
     'exp.sub': (p) => `r − ${lnC(p.j)}: fits. q${sub(p.j)} = ${p.n}.`,
     'exp.decade': (p) => `Decade ${p.j}: ${p.n}×.`,
     'exp.init': 'Tiny residual ρ: e^ρ ≈ 1 + ρ. Start value P = 1 + ρ.',
     'exp.mul': (p) => `P ← P + P·${p10(p.j)} (${p.k}/${p.n}) – multiplying by (1+${p10(p.j)}) via shift and add.`,
-    'bin.init': 'Classic CORDIC: start vector (K, 0) with K = 0.6072529350. This compensates in advance for the growth caused by all 36 rotations. Z = θ is the angle still to rotate.',
-    'bin.rot': (p) => `Iteration ${p.i}: Z is ${p.plus ? 'positive' : 'negative'} → rotate by ${p.plus ? '+' : '−'}atan(2${sup(-p.i)}): X′ = X ${p.plus ? '−' : '+'} Y·2${sup(-p.i)}, Y′ = Y ${p.plus ? '+' : '−'} X·2${sup(-p.i)}. Shift by ${p.i} bit(s) and add.`,
+    'bin.init': 'Classic [[cordic|CORDIC]]: start vector (K, 0) with K = 0.6072529350. This compensates in advance for the [[gain|growth]] caused by all 36 rotations. Z = θ is the angle still to rotate.',
+    'bin.rot': (p) => `Iteration ${p.i}: Z is ${p.plus ? 'positive' : 'negative'} → rotate by ${p.plus ? '+' : '−'}atan(2${sup(-p.i)}): X′ = X ${p.plus ? '−' : '+'} Y·2${sup(-p.i)}, Y′ = Y ${p.plus ? '+' : '−'} X·2${sup(-p.i)}. [[shift|Shift]] by ${p.i} bit(s) and add.`,
     'bin.final.sin': 'sin θ = Y – directly, without a division, because K already compensated the growth.',
     'bin.final.cos': 'cos θ = X – directly, without a division.',
     'bin.final.tan': 'tan θ = Y / X.',
@@ -310,11 +330,13 @@ export { sub, p10 };
 const DICTS = { de, en };
 let lang = 'de';
 let modelName = 'HP-45';
-const withModel = (str) => (typeof str === 'string' ? str.replaceAll('HP-45', modelName) : str);
+let modelYear = '1973';
+const withModel = (str) => (typeof str === 'string' ? str.replaceAll('HP-45', modelName).replaceAll('{year}', modelYear) : str);
 
 /** All texts mention "HP-45"; when the HP-35 is selected they say "HP-35". */
 export function setModelName(m) {
   modelName = `HP-${m}`;
+  modelYear = m === 35 ? '1972' : '1973';
   listeners.forEach((f) => f(lang));
 }
 const listeners = new Set();
@@ -351,8 +373,24 @@ export function tm(msg) {
   return withModel(typeof m === 'function' ? m(params) : m);
 }
 
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+/**
+ * Turn a text with [[term]] or [[term|label]] markers into HTML: every marker
+ * becomes a dashed link that opens the glossary.
+ */
+export function rich(str) {
+  return esc(str ?? '').replace(/\[\[([a-z]+)(?:\|([^\]]+))?\]\]/g, (_, id, label) => {
+    const text = label ?? GLOSSARY[id]?.[lang]?.term ?? id;
+    return `<button type="button" class="term" data-term="${id}">${text}</button>`;
+  });
+}
+
 /** Apply translations to [data-i18n] elements. */
 export function applyStatic(root = document) {
+  root.querySelectorAll('[data-i18n-rich]').forEach((el) => {
+    el.innerHTML = rich(t(el.dataset.i18nRich));
+  });
   root.querySelectorAll('[data-i18n]').forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
