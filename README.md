@@ -20,6 +20,7 @@ Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pr
   - **Detail:** alle Mikroschritte mit Konvergenz-Plot und Konstantentabelle
   - **Profi:** zusätzlich BCD-Register und der Vergleich mit binärem CORDIC
 - **Tastenhilfe:** Mit „? Tastenhilfe“ werden Tasten erklärt statt ausgeführt. Für jede Taste und Gold-Funktion beider Modelle gibt es eine Karte mit Erklärung, Tastenfolge und Stapel vorher/nachher. Bei Rechenfunktionen führt ein Knopf direkt ins Labor.
+- **Baukasten:** „Alles aus 4 Bausteinen“ (Addieren, Verschieben, Zählen, Vergleichen) mit einer live berechneten Kostentabelle: + kostet 1 Addition, × 9, ÷ 58, sin 30° rund 190. Das Labor zeigt oben, was die letzte Rechnung gekostet hat.
 - **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
 
 ### Zwei Rechner: HP-35 und HP-45

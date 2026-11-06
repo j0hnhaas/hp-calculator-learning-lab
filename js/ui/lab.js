@@ -2,6 +2,7 @@
 
 import { t, tm, sup, sub, p10, onLang, getLang, rich, localize } from '../i18n.js';
 import { buildStory, nf, coinDeg } from './story.js';
+import { costLabel } from './blocks.js';
 import { fmtFixed, S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
 import * as fn from '../engine/functions.js';
@@ -113,9 +114,9 @@ export class Lab {
         <h2 id="lab-title" data-i18n="lab.title"></h2>
         <button type="button" class="lab-close icon-btn" data-i18n-title="lab.close">✕</button>
       </div>
-      <div class="lab-empty"><p data-i18n-rich="lab.empty"></p></div>
+      <div class="lab-empty"><p data-i18n-rich="lab.empty"></p><button type="button" class="pill" data-blocks data-i18n="blocks.open"></button></div>
       <div class="lab-body" hidden>
-        <div class="lab-op"><span class="op-text"></span><span class="op-algo"></span></div>
+        <div class="lab-op"><span class="op-text"></span><span class="op-algo"></span><button type="button" class="cost-badge" data-blocks></button></div>
         <div class="levels" role="group">
           <button type="button" data-lv="simple" data-i18n="level.simple"></button>
           <button type="button" data-lv="detail" data-i18n="level.detail"></button>
@@ -175,7 +176,7 @@ export class Lab {
         </div>
         <p class="custom-err" hidden></p>
       </form>
-      <details class="about"><summary data-i18n="lab.about.title"></summary><p data-i18n-rich="lab.about.body"></p></details>`;
+      <details class="about"><summary data-i18n="lab.about.title"></summary><p data-i18n-rich="lab.about.body"></p><button type="button" class="pill" data-blocks data-i18n="blocks.open"></button></details>`;
 
     const q = (s) => this.root.querySelector(s);
     this.el = {
@@ -191,6 +192,7 @@ export class Lab {
       play: q('.play'),
       regs: q('.reg-list'),
       consts: q('.const-table'),
+      cost: q('.cost-badge'),
       conv: q('.conv'),
       method: q('.method'),
       compare: q('.compare'),
@@ -490,6 +492,8 @@ export class Lab {
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
     this.el.op.textContent = opText(tr, args, unit);
+    this.el.cost.textContent = costLabel(tr.steps);
+    this.el.cost.hidden = !this.el.cost.textContent;
     this.el.algo.textContent = t('algo.' + s.algo) + (this.binTrace && !isBin(s.algo) ? ` · ${t('method.dec')}` : '');
     this.root.querySelector('.regs-title').innerHTML = rich(t(isBin(s.algo) ? 'lab.registers.bin' : 'lab.registers'));
     this.el.explain.innerHTML = rich(tm(s.msg));
@@ -513,6 +517,8 @@ export class Lab {
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
     this.el.op.textContent = opText(tr, args, unit);
+    this.el.cost.textContent = costLabel(tr.steps);
+    this.el.cost.hidden = !this.el.cost.textContent;
     this.el.algo.textContent = '';
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${this.story.length}`;
     this.el.scrub.value = String(this.i);

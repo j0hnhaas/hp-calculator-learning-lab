@@ -563,3 +563,23 @@ body.keyhelp-on .key.gold { outline-color: #fff8; }
 .kh-stacks { align-items: center; max-width: 340px; }
 .kh-arrow { color: var(--gold); font-size: 20px; }
 .kh-lab { margin-top: 2px; }
+
+/* ---------------------------------------------------------------- building blocks */
+.cost-badge {
+  appearance: none; border: 1px dashed #d6a84d88; background: #2c2720; color: #e9dcc0;
+  border-radius: 999px; padding: 2px 10px; font: 12px var(--sans); cursor: pointer;
+}
+.cost-badge:hover { border-style: solid; }
+.lab-empty .pill, .about .pill { margin-top: 8px; }
+.blk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 14px; }
+.blk { display: flex; flex-direction: column; gap: 2px; background: #2c2720; border-radius: 10px; padding: 10px; font-size: 13.5px; }
+.blk-icon { font-size: 22px; }
+.blk b { color: var(--gold); font-size: 14.5px; }
+.blk-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.blk-table th { text-align: left; font-weight: 500; color: var(--muted); padding: 4px; font-size: 12px; }
+.blk-table td { padding: 5px 4px; border-top: 1px solid #3a352d; vertical-align: middle; }
+.blk-ex { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+.blk-used { white-space: nowrap; }
+.blk-cost { width: 40%; position: relative; }
+.blk-bar { display: block; height: 14px; border-radius: 4px; background: linear-gradient(90deg, #d6a84d, #e0603c); }
+.blk-n { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font: 600 12px var(--mono); color: #fff; text-shadow: 0 1px 2px #000; }
