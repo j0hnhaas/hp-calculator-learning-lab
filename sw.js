@@ -1,6 +1,6 @@
 // Service worker: cache-first app shell, so the calculator works offline.
 // Bump VERSION whenever a file changes.
-const VERSION = 'hp45-v4';
+const VERSION = 'hp45-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -27,7 +27,13 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache: 'reload' bypasses the browser's HTTP cache (GitHub Pages: max-age 600),
+  // so a new version never stores stale files
+  e.waitUntil(
+    caches.open(VERSION)
+      .then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' }))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -40,6 +46,19 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  // the page itself: network first, so updates show up right away (offline: cache)
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request, { cache: 'no-cache' })
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(VERSION).then((c) => c.put('./index.html', copy));
+          return res;
+        })
+        .catch(() => caches.match('./index.html')),
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => {
       if (res.ok && new URL(e.request.url).origin === location.origin) {
