@@ -72,6 +72,16 @@ const de = {
   'cmp.small.bin': 'nur absolut genau (≈ 2⁻³⁶)',
   'cmp.conclusion': 'Der Aufwand ist ähnlich – aber der HP-45 rechnet von der Tastatur bis zur Anzeige in [[bcd|BCD]]. Dort ist das Verschieben um eine Dezimalstelle trivial, das Verschieben um ein Bit nicht. Außerdem dreht die dezimale Variante nur vorwärts und zählt, die Verlängerung des Vektors kürzt sich heraus, und sie braucht nur 7 statt 36 Konstanten im knappen ROM.',
   'lab.conv.note.bin': 'Binär: Jede Iteration bringt ein Bit, also etwa 0,3 Dezimalstellen – die Kurve steigt gleichmäßig. Der Vektor pendelt dabei um das Ziel (σ = + oder −). Die gepunktete Linie zeigt zum Vergleich das dezimale Verfahren.',
+  'level.simple': 'Einfach',
+  'level.detail': 'Detail',
+  'level.pro': 'Profi',
+  'lab.guess': 'Mitraten',
+  'lab.guess.ok': 'Richtig! 🎉',
+  'lab.guess.no': 'Fast – du hast {g} gesagt, es sind {n}.',
+  'lab.merke': 'Merke',
+  'coins.target': 'Ziel',
+  'coins.paid': 'bezahlt',
+  'coins.missing': 'fehlt',
   'lab.zoom': 'Zoom',
   'lab.about.title': 'Was passiert hier?',
   'lab.about.body': 'Der HP-45 hat keinen Multiplizierer. Er rechnet in [[bcd|BCD]] – jede Stelle eine Dezimalziffer – und kann Ziffern nur [[shift|verschieben]] (×10, ÷10) und addieren. Trotzdem berechnet er sin, ln oder eˣ auf 10 Stellen genau. Der Trick ist eine dezimale Variante von [[cordic|CORDIC]] (Volder 1959, Meggitt 1962): Ein Winkel wird in Vielfache der [[rom|ROM-Konstanten]] atan(1), atan(0,1), atan(0,01) … zerlegt ([[pseudodiv|Pseudo-Division]]), danach wird ein [[vector|Zeiger]] genau so oft um diese Winkel gedreht ([[pseudomul|Pseudo-Multiplikation]]). Jede Drehung um atan(10⁻ʲ) ist nur „Wert um j Stellen verschieben und addieren“.',
@@ -228,6 +238,16 @@ const en = {
   'cmp.small.bin': 'only absolutely accurate (≈ 2⁻³⁶)',
   'cmp.conclusion': 'The effort is similar – but the HP-45 works in [[bcd|BCD]] from keyboard to display. There, shifting by one decimal digit is trivial, shifting by one bit is not. On top of that the decimal method only rotates forwards and counts, the vector growth cancels out, and it needs only 7 instead of 36 constants in the scarce ROM.',
   'lab.conv.note.bin': 'Binary: every iteration yields one bit, about 0.3 decimal digits – the curve rises steadily. Meanwhile the vector oscillates around the target (σ = + or −). The dotted line shows the decimal method for comparison.',
+  'level.simple': 'Simple',
+  'level.detail': 'Detail',
+  'level.pro': 'Expert',
+  'lab.guess': 'Guess along',
+  'lab.guess.ok': 'Correct! 🎉',
+  'lab.guess.no': 'Close – you said {g}, it is {n}.',
+  'lab.merke': 'Remember',
+  'coins.target': 'target',
+  'coins.paid': 'paid',
+  'coins.missing': 'missing',
   'lab.zoom': 'Zoom',
   'lab.about.title': 'What is going on?',
   'lab.about.body': 'The HP-45 has no multiplier. It computes in [[bcd|BCD]] – one decimal digit per nibble – and can only [[shift|shift]] digits (×10, ÷10) and add. Still it gets sin, ln or eˣ right to 10 digits. The trick is a decimal variant of [[cordic|CORDIC]] (Volder 1959, Meggitt 1962): an angle is split into multiples of the [[rom|ROM constants]] atan(1), atan(0.1), atan(0.01) … ([[pseudodiv|pseudo-division]]), then a [[vector|pointer]] is rotated by exactly those angles ([[pseudomul|pseudo-multiplication]]). Every rotation by atan(10⁻ʲ) is just “shift by j digits and add”.',
@@ -332,6 +352,9 @@ let lang = 'de';
 let modelName = 'HP-45';
 let modelYear = '1973';
 const withModel = (str) => (typeof str === 'string' ? str.replaceAll('HP-45', modelName).replaceAll('{year}', modelYear) : str);
+
+/** Apply the selected model name and year to a text. */
+export const localize = (str) => withModel(str);
 
 /** All texts mention "HP-45"; when the HP-35 is selected they say "HP-35". */
 export function setModelName(m) {
