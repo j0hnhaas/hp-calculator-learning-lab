@@ -16,11 +16,12 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <h1 data-i18n="app.title">HP-45 · Decimal CORDIC</h1>
-      <p data-i18n="app.subtitle"></p>
+      <h1 data-i18n="app.title"></h1>
+      <p data-i18n-rich="app.subtitle"></p>
     </div>
     <div class="settings">
       <button type="button" class="pill" id="btn-lang">EN</button>
+      <button type="button" class="pill" data-rpn data-i18n="rpn.open"></button>
       <label class="pill toggle"><input type="checkbox" id="opt-timing" checked> <span data-i18n="settings.timing"></span></label>
       <label class="pill toggle"><input type="checkbox" id="opt-sound"> <span data-i18n="settings.sound"></span></label>
       <button type="button" class="pill" id="btn-install" hidden data-i18n="install"></button>
@@ -29,6 +30,7 @@
 
   <main class="stage">
     <section class="calc-wrap" id="calc-wrap">
+      <div class="task" id="task" hidden aria-live="polite"></div>
       <div id="calc"></div>
       <div class="status" id="status" aria-live="polite"></div>
     </section>

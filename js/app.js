@@ -5,7 +5,8 @@ import { KEY_LAYOUTS } from './calc/keys.js';
 import { buildCalculator } from './ui/calculator.js';
 import { Lab } from './ui/lab.js';
 import { t, setLang, detectLang, applyStatic, getLang, onLang, setModelName } from './i18n.js';
-import { formatNumber } from './calc/hp45.js';
+import { openRpnGuide, TASKS, taskTexts, keys } from './ui/rpn-guide.js';
+import './ui/sheet.js';
 
 // ---------------------------------------------------------------- settings
 const store = {
@@ -46,20 +47,130 @@ function refresh() {
   renderStatus();
 }
 
+/** Friendly number for the stack view: no 0.000000e00, real exponents. */
+function friendly(v) {
+  if (v === 0) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e10 || a < 1e-6) {
+    const [m, e] = v.toExponential(9).split('e');
+    const mant = m.replace(/\.?0+$/, '');
+    const SUP = { '-': '⁻', '+': '', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+    return `${mant} × 10${e.split('').map((c) => SUP[c] ?? c).join('')}`;
+  }
+  return String(Number(v.toPrecision(10)));
+}
+
+let prevStack = null;
 function renderStatus() {
   if (!powered) {
     statusEl.innerHTML = '';
+    prevStack = null;
     return;
   }
   const is35 = calc.model === 35;
   const mode = is35 ? t('status.auto') : `${calc.dispMode} ${calc.dispDigits}`;
-  const stack = ['T', 'Z', 'Y', 'X'].map((n, i) => {
-    const v = calc.stack[3 - i];
-    return `<span class="sv"><b>${n}</b>${formatNumber(v, 'SCI', 6).replace(/\s+/g, ' ').trim().replace(/ (-?\d\d)$/, 'e$1')}</span>`;
+  const typing = calc.entry ? calc.entryString().replace(/\s+/g, ' ').trim() : null;
+  // the stack as a pile: T on top, X at the bottom (= the display)
+  const vals = [3, 2, 1, 0].map((i) => calc.stack[i]);
+  const names = ['T', 'Z', 'Y', 'X'];
+  const rows = names.map((n, k) => {
+    const isX = n === 'X';
+    const shown = isX && typing !== null ? `${typing}<span class="caret"></span>` : friendly(vals[k]);
+    const changed = prevStack && prevStack[k] !== vals[k] && !(isX && typing !== null);
+    return `<div class="srow${isX ? ' x' : ''}${changed ? ' chg' : ''}"><b>${n}</b><span class="val">${shown}</span>${isX ? `<span class="xlabel">${t('status.display')}</span>` : ''}</div>`;
   }).join('');
+  prevStack = vals;
+  const mem = is35 ? `<div class="srow mem"><b>${t('status.mem')}</b><span class="val">${friendly(calc.regs[1])}</span><span class="xlabel">${t('status.memlabel')}</span></div>` : '';
   statusEl.innerHTML = `
-    <div class="modes"><span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>
-    <div class="stack">${stack}${is35 ? `<span class="sv"><b>${t('status.mem')}</b>${formatNumber(calc.regs[1], 'SCI', 6).replace(/\s+/g, ' ').trim().replace(/ (-?\d\d)$/, 'e$1')}</span>` : ''}</div>`;
+    <div class="st-head">
+      <button type="button" class="term" data-term="stack">${t('status.stack')}</button>
+      <button type="button" class="help-link" data-rpn>${t('rpn.open')}</button>
+    </div>
+    <div class="stackviz">${rows}${mem}</div>
+    <div class="modes"><span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>`;
+}
+
+// ---------------------------------------------------------------- RPN guide & exercises
+const taskEl = document.getElementById('task');
+let task = null; // index into TASKS while exercising
+
+function showTask() {
+  const T = taskTexts();
+  if (task === null) {
+    taskEl.hidden = true;
+    return;
+  }
+  const k = TASKS[task];
+  taskEl.hidden = false;
+  taskEl.className = 'task';
+  taskEl.innerHTML = `
+    <span class="task-q">${T.task.replace('{n}', task + 1).replace('{m}', TASKS.length)} <b>${k.q}</b></span>
+    <span class="task-actions">
+      <button type="button" class="pill" data-task="hint">${T.hint}</button>
+      <button type="button" class="pill" data-task="quit" aria-label="${T.quit}">✕</button>
+    </span>
+    <span class="task-hint" hidden>${keys(k.hint)}</span>`;
+}
+
+function startTasks() {
+  task = 0;
+  calc.reset();
+  refresh();
+  showTask();
+  taskEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+taskEl.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-task]');
+  if (!b) return;
+  if (b.dataset.task === 'hint') taskEl.querySelector('.task-hint').hidden = false;
+  if (b.dataset.task === 'quit') {
+    task = null;
+    showTask();
+  }
+});
+
+/** After every finished operation: did the user solve the current exercise? */
+function checkTask(id) {
+  if (task === null || calc.entry || calc.error) return;
+  if (!['add', 'sub', 'mul', 'div'].includes(id)) return;
+  if (Math.abs(calc.x - TASKS[task].target) > 1e-9) return;
+  const T = taskTexts();
+  const last = task === TASKS.length - 1;
+  taskEl.className = 'task ok';
+  taskEl.innerHTML = `<span class="task-q">✓ ${T.right} ${TASKS[task].q} = <b>${TASKS[task].target}</b>${last ? ` · ${T.done}` : ''}</span>`;
+  const cur = task;
+  setTimeout(() => {
+    if (task !== cur) return;
+    task = last ? null : task + 1;
+    showTask();
+  }, last ? 3500 : 1600);
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-rpn]')) {
+    hint?.remove();
+    store.set('hintSeen', true);
+    openRpnGuide(startTasks);
+  }
+});
+
+// first visit: a gentle hint that this calculator types differently
+let hint = null;
+if (!store.get('hintSeen', false)) {
+  hint = document.createElement('div');
+  hint.className = 'coach';
+  document.querySelector('.topbar').after(hint);
+  const renderHint = () => {
+    if (!hint?.isConnected) return;
+    hint.innerHTML = `<span>${t('rpn.coach')}</span><button type="button" class="pill primary" data-rpn>${t('rpn.open')}</button><button type="button" class="icon-btn coach-x" aria-label="${t('lab.close')}">✕</button>`;
+    hint.querySelector('.coach-x').addEventListener('click', () => {
+      hint.remove();
+      store.set('hintSeen', true);
+    });
+  };
+  renderHint();
+  onLang(renderHint);
 }
 
 function handleKey(id) {
@@ -80,6 +191,7 @@ function run(id) {
   }
   const ms = settings.timing ? res.busy : Math.min(res.busy, 30);
   renderStatus();
+  checkTask(id);
   if (ms > 0) {
     busy = true;
     ui.display.show(null); // the display goes dark while the calculator is busy
@@ -175,7 +287,8 @@ btnLang.addEventListener('click', () => {
 onLang(() => {
   applyStatic();
   btnLang.textContent = t('settings.lang');
-  document.title = t('app.title');
+  document.title = t('app.doctitle');
+  showTask();
   renderStatus();
 });
 

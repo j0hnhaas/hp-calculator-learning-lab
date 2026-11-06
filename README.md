@@ -11,6 +11,12 @@
 
 Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pro Halbbyte) und konnte nur Ziffern **verschieben** und **addieren**. Trotzdem lieferte er sin, ln oder eˣ auf 10 Stellen genau. Dieses Projekt simuliert den Rechner und zeigt im Panel **„Blick ins Innere“**, wie er das macht.
 
+### Lernhilfen
+
+- **RPN in einer Minute:** vier kurze Karten erklären, wie man ohne =-Taste rechnet. Danach folgen drei Übungen direkt am Rechner, der richtige Lösungen erkennt. Beim ersten Besuch erscheint dazu ein Hinweis.
+- **Stapel live:** Unter dem Rechner ist der Stack als Stapel T–Z–Y–X zu sehen. Geänderte Werte leuchten kurz auf.
+- **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
+
 ### Zwei Rechner: HP-35 und HP-45
 
 Ein Schiebeschalter auf der Silberleiste wechselt zwischen dem **HP-35** (1972) und dem **HP-45** (1973). Beide nutzen dieselbe dezimale CORDIC-Familie. Beim Umschalten wird der Rechner zurückgesetzt, als würde man das andere Gerät in die Hand nehmen. Die Wahl bleibt gespeichert.
