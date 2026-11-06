@@ -38,7 +38,6 @@ const store = {
   },
 };
 const settings = {
-  timing: store.get('timing', true),
   sound: store.get('sound', false),
   model: store.get('model', 45) === 35 ? 35 : 45,
 };
@@ -245,7 +244,7 @@ function run(id) {
     lab.load(res.trace);
     pulseFab();
   }
-  const ms = settings.timing ? res.busy : Math.min(res.busy, 30);
+  const ms = res.busy; // always the original speed: the display goes dark while computing
   renderStatus();
   checkTask(id);
   if (ms > 0) {
@@ -349,12 +348,6 @@ onLang(() => {
   renderStatus();
 });
 
-const optTiming = document.getElementById('opt-timing');
-optTiming.checked = settings.timing;
-optTiming.addEventListener('change', () => {
-  settings.timing = optTiming.checked;
-  store.set('timing', settings.timing);
-});
 const optSound = document.getElementById('opt-sound');
 optSound.checked = settings.sound;
 optSound.addEventListener('change', () => {
