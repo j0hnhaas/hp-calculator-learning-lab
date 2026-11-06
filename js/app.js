@@ -9,6 +9,14 @@ import { openRpnGuide, TASKS, taskTexts, keys } from './ui/rpn-guide.js';
 import './ui/sheet.js';
 import { openKeyHelp } from './ui/keyhelp-ui.js';
 import * as fn from './engine/functions.js';
+import * as extra from './engine/extra.js';
+
+const RECIPES = {
+  fact: (a, t) => extra.factorial(a[0], t),
+  dpct: (a, t) => extra.deltaPct(a[0], a[1], t),
+  toDMS: (a, t) => extra.toDMS(a[0], t),
+  fromDMS: (a, t) => extra.fromDMS(a[0], t),
+};
 
 // ---------------------------------------------------------------- settings
 const store = {
@@ -119,7 +127,13 @@ function showInLab({ label, args, angle = 'DEG' }) {
   if (['sin', 'cos', 'tan'].includes(label)) result = fn.trig(label, args[0], angle, steps);
   else if (['asin', 'acos', 'atan'].includes(label)) result = fn[label](args[0], angle, steps);
   else if (label === 'pow' || label === 'pow35') result = fn.pow(args[0], args[1], steps);
-  else result = fn[label](args[0], steps);
+  else if (RECIPES[label]) {
+    const rec = RECIPES[label](args, steps);
+    lab.load({ label, args, angle, steps, result: rec.result, recipe: rec.recipe });
+    setSheet(true);
+    document.getElementById('lab').scrollIntoView({ block: 'start', behavior: 'smooth' });
+    return;
+  } else result = fn[label](args[0], steps);
   lab.load({ label, args, angle, steps, result });
   setSheet(true);
   document.getElementById('lab').scrollIntoView({ block: 'start', behavior: 'smooth' });

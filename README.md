@@ -72,6 +72,13 @@ Auch + − × ÷ rechnet die Simulation wie der echte Rechner, Ziffer für Ziffe
 
 Weil dezimal gerechnet wird, ergibt 0,1 + 0,2 genau 0,3.
 
+Auch die Spezialtasten sind **Rezepte** aus diesen Bausteinen, und das Labor zeigt sie Schritt für Schritt:
+- **n!** besteht aus lauter ×.
+- **Δ%** rechnet −, dann ÷, dann × 100. Das × 100 ist nur ein Verschieben um zwei Stellen.
+- **→D.MS** nimmt zweimal × 60, **D.MS→** rechnet ÷ 60, ÷ 3600 und +.
+- **Σ+ und Σ−** führen Buch über n, Σx², Σx und Σy.
+- **x̄, s** ergibt sich aus ÷, ×, − und √.
+
 ### Die Algorithmen (dezimales CORDIC nach Volder/Meggitt)
 
 | Funktion | Pseudo-Division | Pseudo-Multiplikation |

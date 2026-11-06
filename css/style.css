@@ -583,3 +583,5 @@ body.keyhelp-on .key.gold { outline-color: #fff8; }
 .blk-cost { width: 40%; position: relative; }
 .blk-bar { display: block; height: 14px; border-radius: 4px; background: linear-gradient(90deg, #d6a84d, #e0603c); }
 .blk-n { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font: 600 12px var(--mono); color: #fff; text-shadow: 0 1px 2px #000; }
+
+.story-text .muted { color: var(--muted); font-size: 13px; }

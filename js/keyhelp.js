@@ -189,6 +189,7 @@ export const KEYHELP = {
   },
   fact: {
     ex: '5 n!',
+    lab: { label: 'fact', args: [5] },
     de: { n: 'n! – Fakultät', d: '1 · 2 · 3 · … · n. Zählt zum Beispiel, wie viele Reihenfolgen es für n Dinge gibt. Bis 69!.', r: '120' },
     en: { n: 'n! – factorial', d: '1 · 2 · 3 · … · n. Counts, for example, how many orders there are for n things. Up to 69!.', r: '120' },
   },
@@ -216,16 +217,19 @@ export const KEYHELP = {
   },
   dpct: {
     ex: '80 ENTER↑ 100 Δ%',
+    lab: { label: 'dpct', args: [80, 100] },
     de: { n: 'Δ% – prozentuale Änderung', d: 'Um wie viel Prozent ist es von Y nach X gestiegen oder gefallen?', r: '25' },
     en: { n: 'Δ% – percent change', d: 'By how many percent did it rise or fall from Y to X?', r: '25' },
   },
   toDMS: {
     ex: '1.5 →D.MS',
+    lab: { label: 'toDMS', args: [1.5] },
     de: { n: '→D.MS – in Grad/Stunden, Minuten, Sekunden', d: 'Macht aus 1,5 Stunden die Schreibweise 1.3000 = 1 h 30 min 00 s.', r: '1.3000' },
     en: { n: '→D.MS – to degrees/hours, minutes, seconds', d: 'Turns 1.5 hours into the notation 1.3000 = 1 h 30 min 00 s.', r: '1.3000' },
   },
   fromDMS: {
     ex: '1.3 D.MS→',
+    lab: { label: 'fromDMS', args: [1.3] },
     de: { n: 'D.MS→ – in Dezimalzahl', d: 'Umkehrung: aus 1.30 (1 h 30 min) wird 1,5.', r: '1,5' },
     en: { n: 'D.MS→ – to decimal', d: 'Inverse: 1.30 (1 h 30 min) becomes 1.5.', r: '1.5' },
   },

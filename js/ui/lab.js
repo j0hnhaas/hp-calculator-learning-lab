@@ -22,7 +22,7 @@ const REG_NAMES = {
 const DECADE_COLORS = ['#e8b04a', '#e0603c', '#4fa3d9', '#6cc28a', '#b48ae0', '#e07ab4', '#c9c26a', '#7ad0d0', '#d08a5a'];
 const OP_LABEL = {
   sin: 'SIN', cos: 'COS', tan: 'TAN', asin: 'SIN⁻¹', acos: 'COS⁻¹', atan: 'TAN⁻¹',
-  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', toP: '→P', toR: '→R',
+  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', fact: 'n!', dpct: 'Δ%', toDMS: '→D.MS', fromDMS: 'D.MS→', sigma: 'Σ+', sigmaMinus: 'Σ−', mean: 'x̄, s', toP: '→P', toR: '→R',
 };
 
 const EXAMPLES = [
@@ -46,6 +46,10 @@ function opText(tr, args, unit) {
   if (tr.label === 'inv') return `1 ÷ ${y} = ${res}`;
   if (tr.label === 'sq') return `${y}² = ${res}`;
   if (tr.label === 'pct') return `${x} % × ${y} = ${res}`;
+  if (tr.label === 'fact') return `${y}! = ${res}`;
+  if (tr.label === 'dpct') return `Δ% ${y} → ${x} = ${res}`;
+  if (tr.label === 'sigma' || tr.label === 'sigmaMinus') return `${OP_LABEL[tr.label]} x = ${y} → n = ${res}`;
+  if (tr.label === 'mean') return `${res}`;
   return `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${res}`;
 }
 
@@ -550,6 +554,7 @@ export class Lab {
   renderPhases() {
     const cur = this.ctx[this.i].group;
     this.el.phases.innerHTML = '';
+    this.el.phases.hidden = this.groups.length > 16; // e.g. 69! – far too many chips
     this.groups.forEach((g, gi) => {
       // skip consecutive duplicates of the same phase label (e.g. small steps)
       const li = document.createElement('li');
@@ -1022,6 +1027,12 @@ export class Lab {
         if (B) rows.push({ label: '÷', text: B, line: true });
         if (s.regs.Q) rows.push({ label: '=', text: s.regs.Q, result: true });
       }
+    }
+    // in the last step show the real result (mantissa and exponent put together)
+    if (s.phase === 'final' && s.result !== undefined) {
+      const res = rows.find((r) => r.result);
+      if (res) res.text = String(s.result);
+      else rows.push({ label: '=', text: String(s.result), result: true });
     }
     const n = Math.max(...rows.map((r) => r.text.length), 4);
     const fs = Math.max(10, Math.min(22, (w - 80) / (n * 0.62)));
