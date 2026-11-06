@@ -4,6 +4,7 @@ import { t, tm, sup, sub, p10, onLang, getLang } from '../i18n.js';
 import { fmtFixed, S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
 import * as fn from '../engine/functions.js';
+import { convergence, MAX_DIGITS } from '../engine/convergence.js';
 
 const REG_NAMES = {
   theta: 'θ', X: 'X', Y: 'Y', M: 'M', P: 'P', sum: 'Σ', r: 'r', x: 'x', a: 'a',
@@ -25,6 +26,16 @@ const EXAMPLES = [
 ];
 
 const num = (v) => Number(v) / Number(S);
+const CONV_PAD_L = 24;
+
+/** Parse "1,5", "-2.5e3", "1.2E-4" → number, or null */
+function parseNumber(str) {
+  const s = String(str).trim().replace(',', '.').replace(/\s+/g, '');
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s)) return null;
+  const x = Number(s);
+  if (!isFinite(x) || Math.abs(x) >= 1e100) return null;
+  return x;
+}
 
 function fmtNum(x) {
   if (x === undefined) return '';
@@ -56,6 +67,11 @@ export class Lab {
         <ol class="phases"></ol>
         <div class="viz-wrap"><canvas class="viz"></canvas></div>
         <p class="explain" aria-live="polite"></p>
+        <div class="conv-box">
+          <div class="conv-head"><h3 data-i18n="lab.conv.title"></h3><span class="conv-now"></span></div>
+          <div class="conv-wrap"><canvas class="conv" aria-hidden="true"></canvas></div>
+          <p class="conv-note"></p>
+        </div>
         <div class="controls">
           <button type="button" class="icon-btn" data-act="first" data-i18n-title="lab.first">⏮</button>
           <button type="button" class="icon-btn" data-act="prev" data-i18n-title="lab.prev">◀</button>
@@ -75,6 +91,21 @@ export class Lab {
         </div>
       </div>
       <div class="examples"><h3 data-i18n="lab.examples"></h3><div class="ex-buttons"></div></div>
+      <form class="custom" novalidate>
+        <h3 data-i18n="lab.custom.title"></h3>
+        <div class="custom-row">
+          <select class="c-fn" aria-label="function">
+            <option value="sin">SIN</option><option value="cos">COS</option><option value="tan">TAN</option>
+            <option value="asin">SIN⁻¹</option><option value="acos">COS⁻¹</option><option value="atan">TAN⁻¹</option>
+            <option value="ln">ln</option><option value="log">log</option><option value="exp">eˣ</option>
+            <option value="exp10">10ˣ</option><option value="sqrt">√x</option>
+          </select>
+          <input class="c-x" type="text" inputmode="decimal" autocomplete="off" value="1" aria-label="x">
+          <select class="c-mode" aria-label="angle mode"><option>DEG</option><option>RAD</option><option>GRD</option></select>
+          <button type="submit" class="chip go" data-i18n="lab.custom.go"></button>
+        </div>
+        <p class="custom-err" hidden></p>
+      </form>
       <details class="about"><summary data-i18n="lab.about.title"></summary><p data-i18n="lab.about.body"></p></details>`;
 
     const q = (s) => this.root.querySelector(s);
@@ -91,7 +122,53 @@ export class Lab {
       play: q('.play'),
       regs: q('.reg-list'),
       consts: q('.const-table'),
+      conv: q('.conv'),
+      convNow: q('.conv-now'),
+      convNote: q('.conv-note'),
     };
+    this.el.conv.addEventListener('pointerdown', (e) => {
+      if (!this.trace) return;
+      const r = this.el.conv.getBoundingClientRect();
+      const n = this.trace.steps.length;
+      const k = Math.round(((e.clientX - r.left - CONV_PAD_L) / (r.width - CONV_PAD_L - 8)) * (n - 1));
+      this.stop();
+      this.go(k);
+    });
+    const form = q('.custom');
+    const fnSel = q('.c-fn');
+    const modeSel = q('.c-mode');
+    const syncMode = () => { modeSel.hidden = !['sin', 'cos', 'tan', 'asin', 'acos', 'atan'].includes(fnSel.value); };
+    fnSel.addEventListener('change', syncMode);
+    syncMode();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const err = q('.custom-err');
+      err.hidden = true;
+      const x = parseNumber(q('.c-x').value);
+      if (x === null) {
+        err.textContent = t('lab.custom.bad');
+        err.hidden = false;
+        return;
+      }
+      const f = fnSel.value;
+      const mode = modeSel.value;
+      const steps = [];
+      try {
+        let result;
+        if (['sin', 'cos', 'tan'].includes(f)) result = fn.trig(f, x, mode, steps);
+        else if (['asin', 'acos', 'atan'].includes(f)) result = fn[f](x, mode, steps);
+        else result = fn[f](x, steps);
+        if (!steps.length) {
+          err.textContent = t('lab.custom.trivial');
+          err.hidden = false;
+          return;
+        }
+        this.load({ label: f, args: [x], angle: mode, result, steps });
+      } catch {
+        err.textContent = t('lab.custom.domain');
+        err.hidden = false;
+      }
+    });
     q('.controls').addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]');
       if (b) this.act(b.dataset.act);
@@ -162,6 +239,7 @@ export class Lab {
       if (s.msg?.[0] === 'exp.start') lastP = undefined;
     }
     this.groups = groups;
+    this.conv = convergence(steps);
     this.multiAlgo = new Set(steps.map((s) => s.algo)).size > 1;
   }
 
@@ -213,6 +291,10 @@ export class Lab {
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${tr.steps.length}`;
     this.el.scrub.value = String(this.i);
     this.renderPhases();
+    const cv = this.conv?.[this.i];
+    this.el.convNow.textContent = cv ? `${cv.quantity}: ${t('lab.conv.digits').replace('{n}', cv.digits >= MAX_DIGITS ? '≥ 16' : cv.digits.toFixed(1))}` : '';
+    const noteKey = { pdiv: 'pdiv', vec: 'pdiv', pmul: 'pmul', init: 'pmul', sum: 'sum', resid: 'resid', digit: 'sqrt' }[s.phase] ?? 'general';
+    this.el.convNote.textContent = t('lab.conv.note.' + noteKey);
     this.renderRegs(s);
     this.renderConsts(s);
     this.draw();
@@ -318,6 +400,7 @@ export class Lab {
     if (s.algo === 'trig' || s.algo === 'atan') this.drawAngle(g, w, h, s, ctx);
     else if (s.algo === 'ln' || s.algo === 'exp') this.drawTrack(g, w, h, s, ctx);
     else this.drawSqrt(g, w, h, s);
+    this.drawConv();
   }
 
   /** Vectors in the first quadrant plus a zoom window around the tip. */
@@ -524,6 +607,103 @@ export class Lab {
     g.restore();
     g.fillStyle = ink;
     g.fillText(`${t('lab.zoom')} ×10${sup(j)}`, zx + 6, zy + 16);
+  }
+
+  /** Convergence plot: correct digits per step. */
+  drawConv() {
+    const c = this.el.conv;
+    const w = c.parentElement.clientWidth;
+    const h = 130;
+    const dpr = window.devicePixelRatio || 1;
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) {
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
+      c.style.height = `${h}px`;
+    }
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    const css = getComputedStyle(this.root);
+    const ink = css.getPropertyValue('--lab-ink').trim() || '#ddd';
+    const dim = css.getPropertyValue('--lab-dim').trim() || '#666';
+    const steps = this.trace.steps;
+    const n = steps.length;
+    const top = 10;
+    const bottom = h - 18;
+    const left = CONV_PAD_L;
+    const right = w - 8;
+    const X = (k) => left + (n > 1 ? (k / (n - 1)) * (right - left) : 0);
+    const Y = (d) => bottom - (d / MAX_DIGITS) * (bottom - top);
+    g.font = '10.5px ui-monospace, Menlo, Consolas, monospace';
+
+    // phase bands
+    this.groups.forEach((gr, gi) => {
+      const x0 = X(gr.start) - (gr.start > 0 ? (right - left) / (2 * Math.max(1, n - 1)) : 0);
+      if (gi % 2 === 1) {
+        const next = this.groups[gi + 1]?.start ?? n;
+        const x1 = X(next) - (right - left) / (2 * Math.max(1, n - 1));
+        g.fillStyle = '#ffffff08';
+        g.fillRect(x0, top, Math.min(right, x1) - x0, bottom - top);
+      }
+    });
+    // grid
+    g.strokeStyle = '#2c2a26';
+    g.fillStyle = dim;
+    g.lineWidth = 1;
+    for (const d of [0, 5, 10, 15]) {
+      g.beginPath();
+      g.moveTo(left, Y(d));
+      g.lineTo(right, Y(d));
+      g.stroke();
+      g.fillText(String(d), 6, Y(d) + 3.5);
+    }
+    // display precision: 10 digits
+    g.strokeStyle = '#d6a84d';
+    g.setLineDash([5, 4]);
+    g.beginPath();
+    g.moveTo(left, Y(10));
+    g.lineTo(right, Y(10));
+    g.stroke();
+    g.setLineDash([]);
+    g.fillStyle = '#d6a84d';
+    const lbl = t('lab.conv.display');
+    g.fillText(lbl, right - g.measureText(lbl).width - 2, Y(10) - 4);
+
+    // series: connect consecutive points of the same quantity
+    let prev = null;
+    for (let k = 0; k < n; k++) {
+      const cv = this.conv[k];
+      if (!cv) {
+        prev = null;
+        continue;
+      }
+      const future = k > this.i;
+      g.globalAlpha = future ? 0.25 : 1;
+      if (prev && prev.cv.quantity === cv.quantity && prev.k === k - 1) {
+        g.strokeStyle = ink;
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(X(prev.k), Y(prev.cv.digits));
+        g.lineTo(X(k), Y(cv.digits));
+        g.stroke();
+      }
+      const j = steps[k].j;
+      g.fillStyle = j !== undefined && steps[k].algo !== 'sqrt' ? DECADE_COLORS[j] : ink;
+      g.beginPath();
+      g.arc(X(k), Y(cv.digits), n > 120 ? 1.8 : 2.4, 0, Math.PI * 2);
+      g.fill();
+      prev = { k, cv };
+    }
+    g.globalAlpha = 1;
+    // cursor
+    g.strokeStyle = '#ff4a33';
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(X(this.i), top - 4);
+    g.lineTo(X(this.i), bottom + 4);
+    g.stroke();
+    g.fillStyle = dim;
+    g.fillText(t('lab.step'), left, h - 4);
   }
 
   findRunStart() {
