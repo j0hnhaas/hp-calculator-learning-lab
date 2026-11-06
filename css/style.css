@@ -15,7 +15,10 @@
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --sans: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
   /* calculator width: fits the screen, keeps the original proportions (≈ 1 : 1.9) */
-  --cw: min(380px, calc(100vw - 28px), calc((100dvh - 150px) / 1.86));
+  /* svh = the viewport height with the browser bars shown: it does not change while
+     scrolling, so the calculator keeps its size (dvh would grow when the URL bar hides) */
+  --cw: min(380px, calc(100vw - 28px), calc((100vh - 150px) / 1.86));
+  --cw: min(380px, calc(100vw - 28px), calc((100svh - 150px) / 1.86));
   color-scheme: dark;
 }
 
