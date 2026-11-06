@@ -11,6 +11,20 @@
 
 Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pro Halbbyte) und konnte nur Ziffern **verschieben** und **addieren**. Trotzdem lieferte er sin, ln oder eˣ auf 10 Stellen genau. Dieses Projekt simuliert den Rechner und zeigt im Panel **„Blick ins Innere“**, wie er das macht.
 
+### Zwei Rechner: HP-35 und HP-45
+
+Ein Schiebeschalter auf der Silberleiste wechselt zwischen dem **HP-35** (1972) und dem **HP-45** (1973). Beide nutzen dieselbe dezimale CORDIC-Familie. Beim Umschalten wird der Rechner zurückgesetzt, als würde man das andere Gerät in die Hand nehmen. Die Wahl bleibt gespeichert.
+
+| | HP-35 | HP-45 |
+|---|---|---|
+| Inverse Winkelfunktionen | Vorsatztaste `arc` | goldene Shift-Taste |
+| Winkelmodus | nur Grad | DEG / RAD / GRD |
+| Potenz | `xʸ`: Exponent ENTER Basis xʸ | `yˣ`: Basis ENTER Exponent yˣ |
+| Speicher | ein Register (STO/RCL) | R1–R9 mit Registerarithmetik |
+| Anzeige | automatisch: fest für 10⁻² ≤ \|x\| < 10¹⁰, sonst wissenschaftlich | FIX n / SCI n |
+| Fehler | Anzeige blinkt | „Error“ |
+| Extras | π, CLR | LAST x, →P/→R, Statistik, D.MS, %, n!, Umrechnungen |
+
 ### Funktionen
 
 - **Rechner:** alle 35 Tasten mit Gold-Shift. Dazu RPN-Stack mit 4 Registern, LAST x, Speicher R1–R9 mit Registerarithmetik, FIX/SCI, DEG/RAD/GRD, →P/→R, →D.MS, n!, %, Δ%, Statistik (Σ+, Σ−, x̄, s) und Umrechnungskonstanten.

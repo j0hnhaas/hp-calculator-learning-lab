@@ -19,7 +19,7 @@ const REG_NAMES = {
 const DECADE_COLORS = ['#e8b04a', '#e0603c', '#4fa3d9', '#6cc28a', '#b48ae0', '#e07ab4', '#c9c26a', '#7ad0d0', '#d08a5a'];
 const OP_LABEL = {
   sin: 'SIN', cos: 'COS', tan: 'TAN', asin: 'SIN⁻¹', acos: 'COS⁻¹', atan: 'TAN⁻¹',
-  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', toP: '→P', toR: '→R',
+  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', toP: '→P', toR: '→R',
 };
 
 const EXAMPLES = [

@@ -97,3 +97,22 @@ test('polar conversion and statistics', () => {
   assert.equal(s.stack[0], 5);
   assert.equal(s.stack[1], 3.605551275);
 });
+
+test('HP-35: x^y with the base in X, arc prefix, single register, auto display', () => {
+  const c = new HP45(35);
+  assert.equal(c.displayString().trimEnd(), ' 0.');
+  run(c, '3 enter 2 pow35'); // exponent ENTER base x^y
+  assert.equal(c.x, 8);
+  run(c, '0.5 arc sin');
+  assert.equal(c.x, 30);
+  assert.equal(c.displayString().trimEnd(), ' 30.');
+  run(c, '7 sto clx rcl');
+  assert.equal(c.x, 7);
+  run(c, '3 inv');
+  assert.equal(c.displayString().trimEnd(), ' 0.333333333');
+  run(c, '1000 inv');
+  assert.equal(c.displayString(), ' 1.         -03');
+  run(c, '1 enter 0 div');
+  assert.ok(c.error);
+  assert.equal(c.model, 35);
+});

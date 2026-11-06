@@ -89,6 +89,9 @@ const de = {
   'settings.timing': 'Originaltempo',
   'settings.sound': 'Klick',
   'status.shift': 'SHIFT',
+  'status.arc': 'ARC',
+  'status.auto': 'AUTO',
+  'status.mem': 'S',
   'power.on': 'ON',
   'power.off': 'OFF',
   'install': 'Installieren',
@@ -233,6 +236,9 @@ const en = {
   'settings.timing': 'Original speed',
   'settings.sound': 'Click',
   'status.shift': 'SHIFT',
+  'status.arc': 'ARC',
+  'status.auto': 'AUTO',
+  'status.mem': 'S',
   'power.on': 'ON',
   'power.off': 'OFF',
   'install': 'Install',
@@ -303,6 +309,14 @@ export { sub, p10 };
 
 const DICTS = { de, en };
 let lang = 'de';
+let modelName = 'HP-45';
+const withModel = (str) => (typeof str === 'string' ? str.replaceAll('HP-45', modelName) : str);
+
+/** All texts mention "HP-45"; when the HP-35 is selected they say "HP-35". */
+export function setModelName(m) {
+  modelName = `HP-${m}`;
+  listeners.forEach((f) => f(lang));
+}
 const listeners = new Set();
 
 export function detectLang(saved) {
@@ -325,7 +339,7 @@ export function onLang(f) {
 }
 
 export function t(key) {
-  return DICTS[lang][key] ?? DICTS.en[key] ?? key;
+  return withModel(DICTS[lang][key] ?? DICTS.en[key] ?? key);
 }
 
 /** Translate a trace message [key, params]. */
@@ -334,7 +348,7 @@ export function tm(msg) {
   const [key, params = {}] = msg;
   const m = DICTS[lang].msg[key] ?? DICTS.en.msg[key];
   if (!m) return key;
-  return typeof m === 'function' ? m(params) : m;
+  return withModel(typeof m === 'function' ? m(params) : m);
 }
 
 /** Apply translations to [data-i18n] elements. */
