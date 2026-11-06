@@ -1,6 +1,6 @@
 // Service worker: cache-first app shell, so the calculator works offline.
 // Bump VERSION whenever a file changes.
-const VERSION = 'hp45-v11';
+const VERSION = 'hp45-v12';
 const ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,8 @@ const ASSETS = [
   './js/ui/story-arith.js',
   './js/engine/arith.js',
   './js/engine/cost.js',
+  './js/engine/extra.js',
+  './js/ui/story-recipe.js',
   './js/ui/blocks.js',
   './js/keyhelp.js',
   './js/ui/keyhelp-ui.js',

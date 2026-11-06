@@ -8,6 +8,7 @@
 import { S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
 import { addStory, mulStory, divStory } from './story-arith.js';
+import { recipeStory } from './story-recipe.js';
 
 const num = (v) => Number(v) / Number(S);
 const DEG = 180 / Math.PI;
@@ -394,6 +395,8 @@ function sup(n) {
  * @param {{label:string,args:number[],steps:object[],result:number,resultText?:string,angle?:string}} tr
  */
 export function buildStory(tr, lang) {
+  const recipe = recipeStory(tr, lang);
+  if (recipe) return recipe;
   const T = L[lang] ?? L.en;
   const de = lang === 'de';
   const st = tr.steps;

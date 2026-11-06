@@ -6,6 +6,7 @@ import * as fn from '../engine/functions.js';
 import { CalcError } from '../engine/functions.js';
 import { round10 } from '../engine/decimal.js';
 import * as arith from '../engine/arith.js';
+import * as extra from '../engine/extra.js';
 import { ALL_KEYS } from './keys.js';
 
 const MAX = 9.999999999e99;
@@ -362,21 +363,30 @@ export class HP45 {
       }
       case 'dpct': {
         this.terminate();
-        const y = this.stack[1];
-        if (y === 0) throw new CalcError('div0');
-        this.lastX = this.x;
-        this.x = clamp(((this.x - y) / y) * 100);
-        this.lift = true;
-        return { busy: 100 };
-      }
-      case 'fact':
-        this.unary((x) => {
-          if (x < 0 || x !== Math.floor(x) || x > 69) throw new CalcError('domain');
-          let r = 1;
-          for (let i = 2; i <= x; i++) r *= i;
-          return r;
+        const [x, y] = this.stack;
+        let rec;
+        const r = this.traced('dpct', [y, x], (t) => {
+          rec = extra.deltaPct(y, x, t);
+          return rec.result;
         });
-        return { busy: 40 + 8 * Math.min(69, Math.abs(this.x)) };
+        r.trace.recipe = rec.recipe;
+        this.lastX = x;
+        this.x = clamp(r.trace.result);
+        this.lift = true;
+        return r;
+      }
+      case 'fact': {
+        this.terminate();
+        const x = this.x;
+        let rec;
+        const r = this.traced('fact', [x], (t) => {
+          rec = extra.factorial(x, t);
+          return rec.result;
+        });
+        r.trace.recipe = rec.recipe;
+        this.unary(() => r.trace.result);
+        return r;
+      }
       case 'lastx':
         this.recall(this.lastX);
         return;
@@ -393,58 +403,62 @@ export class HP45 {
         this.recall(3.785411784);
         return;
       case 'toDMS': {
-        this.unary((x) => {
-          const neg = x < 0;
-          let a = Math.abs(x);
-          let h = Math.floor(a);
-          let m = Math.floor((a - h) * 60 + 1e-9);
-          let s = (a - h - m / 60) * 3600;
-          s = Math.round(s * 1e6) / 1e6;
-          if (s >= 60) { s -= 60; m += 1; }
-          if (m >= 60) { m -= 60; h += 1; }
-          const r = h + m / 100 + s / 10000;
-          return neg ? -r : r;
+        this.terminate();
+        const x = this.x;
+        let rec;
+        const r = this.traced('toDMS', [x], (t) => {
+          rec = extra.toDMS(x, t);
+          return rec.result;
         });
+        r.trace.recipe = rec.recipe;
+        this.unary(() => r.trace.result);
         this.tempFix = 4;
-        return { busy: 150 };
+        return r;
       }
-      case 'fromDMS':
-        this.unary((x) => {
-          const neg = x < 0;
-          const a = Math.abs(x);
-          const h = Math.floor(a);
-          const m = Math.floor(round10((a - h) * 100));
-          const s = round10(((a - h) * 100 - m) * 100);
-          const r = h + m / 60 + s / 3600;
-          return neg ? -r : r;
+      case 'fromDMS': {
+        this.terminate();
+        const x = this.x;
+        let rec;
+        const r = this.traced('fromDMS', [x], (t) => {
+          rec = extra.fromDMS(x, t);
+          return rec.result;
         });
-        return { busy: 150 };
+        r.trace.recipe = rec.recipe;
+        this.unary(() => r.trace.result);
+        return r;
+      }
       case 'sigma':
       case 'sigmaMinus': {
         this.terminate();
         const sign = op === 'sigma' ? 1 : -1;
         const [x, y] = this.stack;
         const R = this.regs;
-        R[5] = clamp(R[5] + sign);
-        R[6] = clamp(R[6] + sign * x * x);
-        R[7] = clamp(R[7] + sign * x);
-        R[8] = clamp(R[8] + sign * y);
+        let rec;
+        const r = this.traced(op, [x, y], (t) => {
+          rec = extra.sigma(x, y, R, sign, t);
+          return rec.result;
+        });
+        r.trace.recipe = rec.recipe;
+        for (let i = 5; i <= 8; i++) R[i] = clamp(R[i]);
         this.lastX = x;
         this.x = R[5];
         this.lift = false;
-        return { busy: 120 };
+        return r;
       }
       case 'mean': {
         this.terminate();
-        const [n, sx2, sx] = [this.regs[5], this.regs[6], this.regs[7]];
-        if (n === 0) throw new CalcError('stat');
-        const mean = sx / n;
-        const s = n > 1 ? Math.sqrt(Math.max(0, (n * sx2 - sx * sx) / (n * (n - 1)))) : 0;
-        if (this.lift) this.push(clamp(s));
-        else this.x = clamp(s);
-        this.push(clamp(mean));
+        let rec;
+        const r = this.traced('mean', [this.regs[5]], (t) => {
+          rec = extra.meanStd(this.regs, t);
+          return rec.result;
+        });
+        r.trace.recipe = rec.recipe;
+        r.trace.resultText = `x̄ = ${clamp(rec.result)}, s = ${clamp(rec.s)}`;
+        if (this.lift) this.push(clamp(rec.s));
+        else this.x = clamp(rec.s);
+        this.push(clamp(rec.result));
         this.lift = true;
-        return { busy: 250 };
+        return r;
       }
 
       // ---- transcendental functions: decimal CORDIC ----
