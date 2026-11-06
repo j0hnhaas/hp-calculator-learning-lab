@@ -33,7 +33,7 @@ export function splitRuns(steps) {
   const runs = [];
   let cur = null;
   steps.forEach((s, i) => {
-    const starts = !cur || cur.algo !== s.algo || s.phase === 'reduce' || s.phase === 'setup'
+    const starts = !cur || cur.algo !== s.algo || s.phase === 'reduce' || s.phase === 'setup' || s.phase === 'start'
       || (s.msg && ['trig.pdiv.start', 'atan.start', 'ln.start', 'exp.start'].includes(s.msg[0]) && cur.hasCore);
     if (starts) {
       cur = { algo: s.algo, start: i, end: i, hasCore: false };
@@ -94,6 +94,19 @@ export function convergence(steps) {
       rs.forEach((s, k) => {
         if (s.phase === 'pdiv' && r0 !== undefined) at(k, correctDigits(r0 - s.regs.r, r0), 'r');
         if ((s.phase === 'pmul' || s.phase === 'init') && Pend !== undefined) at(k, correctDigits(s.regs.P, Pend), 'eʳ');
+      });
+    } else if (run.algo === 'binrot') {
+      const last = [...rs].reverse().find((s) => s.phase === 'rot');
+      if (!last || last.vec.X === 0n) continue;
+      const tanFinal = div(last.vec.Y, last.vec.X);
+      rs.forEach((s, k) => {
+        if ((s.phase === 'rot' || s.phase === 'init') && s.vec.X !== 0n) at(k, correctDigits(div(s.vec.Y, s.vec.X), tanFinal), 'tan');
+      });
+    } else if (run.algo === 'binvec') {
+      const last = [...rs].reverse().find((s) => s.phase === 'rot');
+      if (!last) continue;
+      rs.forEach((s, k) => {
+        if (s.phase === 'rot') at(k, correctDigits(s.z, last.z), 'θ');
       });
     } else if (run.algo === 'sqrt') {
       const digitSteps = rs.filter((s) => s.phase === 'digit');

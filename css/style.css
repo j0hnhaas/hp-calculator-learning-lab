@@ -312,3 +312,19 @@ button { font: inherit; color: inherit; }
 .custom select:focus-visible, .custom input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 .custom .go { height: 32px; color: #1b1408; background: var(--gold); border-color: var(--gold); font-family: var(--sans); font-weight: 600; }
 .custom-err { margin: 6px 2px 0; font-size: 13px; color: #ff8a73; }
+
+/* ---------------------------------------------------------------- stage 3: decimal vs binary */
+.method { display: inline-flex; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.method button { border: 0; background: var(--bg2); padding: 5px 13px; font-size: 12.5px; cursor: pointer; color: var(--muted); }
+.method button + button { border-left: 1px solid var(--line); }
+.method button.on { background: var(--gold); color: #1b1408; font-weight: 600; }
+.compare { margin: 18px 0 4px; }
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.cmp-table th, .cmp-table td { text-align: left; padding: 4px 6px; border-top: 1px solid #2a2824; vertical-align: top; }
+.cmp-table tr:first-child th { border-top: 0; color: var(--gold); font-weight: 600; }
+.cmp-table th { color: var(--muted); font-weight: 500; width: 30%; }
+.cmp-table td { font-size: 12.5px; }
+.cmp-table tr.num td { font-family: var(--mono); font-size: 13px; }
+.cmp-table .diff { color: #ff8a73; }
+.cmp-note { margin: 8px 2px 0; font-size: 13px; color: #cfc7b8; }
+.const-table td.more { color: var(--muted); font-size: 11px; text-align: center; }
