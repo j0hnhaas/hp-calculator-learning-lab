@@ -16,6 +16,9 @@ const RECIPES = {
   dpct: (a, t) => extra.deltaPct(a[0], a[1], t),
   toDMS: (a, t) => extra.toDMS(a[0], t),
   fromDMS: (a, t) => extra.fromDMS(a[0], t),
+  cmin: (a, t) => extra.unitConst('cmin', a[0], t),
+  kglb: (a, t) => extra.unitConst('kglb', a[0], t),
+  ltrgal: (a, t) => extra.unitConst('ltrgal', a[0], t),
 };
 
 // ---------------------------------------------------------------- settings
@@ -129,7 +132,7 @@ function showInLab({ label, args, angle = 'DEG' }) {
   else if (label === 'pow' || label === 'pow35') result = fn.pow(args[0], args[1], steps);
   else if (RECIPES[label]) {
     const rec = RECIPES[label](args, steps);
-    lab.load({ label, args, angle, steps, result: rec.result, recipe: rec.recipe });
+    lab.load({ label, args, angle, steps, result: rec.result, recipe: rec.recipe, noCost: label in { cmin: 1, kglb: 1, ltrgal: 1 } });
     setSheet(true);
     document.getElementById('lab').scrollIntoView({ block: 'start', behavior: 'smooth' });
     return;

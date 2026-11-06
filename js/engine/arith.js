@@ -72,7 +72,7 @@ export function add(a, b, trace, op = 'add') {
   const W = exact ? 10 + Math.max(d, GUARD) : 10 + GUARD; // working width in digits
   const am = A.m * P10(W - 10);
   const bm = exact ? B.m * P10(W - 10 - d) : (B.m * P10(GUARD)) / P10(d);
-  T?.({ algo: 'add', phase: 'align', op, d, swapped, regs: { A: show(am, W), B: show(bm, W) }, eA: A.e, eB: B.e, msg: ['add.align', { d, e: A.e }] });
+  T?.({ algo: 'add', phase: 'align', op, x: a, y: b, d, swapped, regs: { A: show(am, W), B: show(bm, W) }, eA: A.e, eB: B.e, msg: ['add.align', { d, e: A.e }] });
   // digit by digit from the right, with carry or borrow
   const sub = A.neg !== B.neg;
   const ad = am.toString().padStart(W, '0').split('').map(Number);
@@ -126,7 +126,7 @@ export function mul(a, b, trace, op = 'mul') {
     T?.({ algo: 'mul', phase: 'final', op, regs: {}, result: 0, msg: ['mul.zero'] });
     return 0;
   }
-  T?.({ algo: 'mul', phase: 'exp', op, regs: { A: show(A.m), B: show(B.m) }, eA: A.e, eB: B.e, msg: ['mul.exp', { ea: A.e, eb: B.e, e: A.e + B.e }] });
+  T?.({ algo: 'mul', phase: 'exp', op, x: a, y: b, regs: { A: show(A.m), B: show(B.m) }, eA: A.e, eB: B.e, msg: ['mul.exp', { ea: A.e, eb: B.e, e: A.e + B.e }] });
   const bd = B.m.toString().split('').map(Number); // 10 digits, most significant first
   let acc = 0n;
   let adds = 0;
@@ -166,7 +166,7 @@ export function div(a, b, trace, op = 'div') {
     R *= 10n;
     e -= 1;
   }
-  T?.({ algo: 'div', phase: 'exp', op, regs: { R: R.toString(), B: B.m.toString() }, eA: A.e, eB: B.e, msg: ['div.exp', { ea: A.e, eb: B.e, e }] });
+  T?.({ algo: 'div', phase: 'exp', op, x: a, y: b, regs: { R: R.toString(), B: B.m.toString() }, eA: A.e, eB: B.e, msg: ['div.exp', { ea: A.e, eb: B.e, e }] });
   let q = 0n;
   let subs = 0;
   const N = 11; // one digit more than needed, for rounding

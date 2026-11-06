@@ -293,16 +293,19 @@ export const KEYHELP = {
     en: { n: 'π – pi', d: 'The circle constant 3.141592654.', r: '3.141592654' },
   },
   cmin: {
+    lab: { label: 'cmin', args: [10] },
     ex: '10 cm/in ×',
     de: { n: 'cm/in – Zoll', d: 'Legt 2,54 auf den Stapel (cm pro Zoll). 10 Zoll in cm: 10 cm/in ×. Umgekehrt mit ÷.', r: '25,4' },
     en: { n: 'cm/in – inches', d: 'Puts 2.54 on the stack (cm per inch). 10 inches in cm: 10 cm/in ×. The other way with ÷.', r: '25.4' },
   },
   kglb: {
+    lab: { label: 'kglb', args: [10] },
     ex: '10 kg/lb ×',
     de: { n: 'kg/lb – Pfund', d: 'Legt 0,4536 auf den Stapel (kg pro Pfund).', r: '4,536' },
     en: { n: 'kg/lb – pounds', d: 'Puts 0.4536 on the stack (kg per pound).', r: '4.536' },
   },
   ltrgal: {
+    lab: { label: 'ltrgal', args: [10] },
     ex: '10 ltr/gal ×',
     de: { n: 'ltr/gal – Gallonen', d: 'Legt 3,785 auf den Stapel (Liter pro US-Gallone).', r: '37,85' },
     en: { n: 'ltr/gal – gallons', d: 'Puts 3.785 on the stack (litres per US gallon).', r: '37.85' },

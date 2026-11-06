@@ -394,14 +394,22 @@ export class HP45 {
         this.recall(3.141592654);
         return;
       case 'cmin':
-        this.recall(2.54);
-        return;
       case 'kglb':
-        this.recall(0.45359237);
-        return;
-      case 'ltrgal':
-        this.recall(3.785411784);
-        return;
+      case 'ltrgal': {
+        // a constant from the ROM; the trace explains it and its use
+        this.terminate();
+        const v = this.x;
+        let rec;
+        const r = this.traced(op, [v], (t) => {
+          rec = extra.unitConst(op, v, t);
+          return rec.result;
+        });
+        r.trace.recipe = rec.recipe;
+        r.trace.noCost = true;
+        this.recall(rec.result);
+        r.busy = 30;
+        return r;
+      }
       case 'toDMS': {
         this.terminate();
         const x = this.x;

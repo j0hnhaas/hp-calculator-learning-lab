@@ -78,6 +78,7 @@ Auch die Spezialtasten sind **Rezepte** aus diesen Bausteinen, und das Labor zei
 - **→D.MS** nimmt zweimal × 60, **D.MS→** rechnet ÷ 60, ÷ 3600 und +.
 - **Σ+ und Σ−** führen Buch über n, Σx², Σx und Σy.
 - **x̄, s** ergibt sich aus ÷, ×, − und √.
+- **cm/in, kg/lb und ltr/gal** legen eine feste Zahl aus dem ROM auf den Stapel. Das Labor erklärt, woher sie kommt: 1 Zoll ist seit 1959 genau 2,54 cm, 1 Pfund genau 0,45359237 kg, und die Gallone wird aus 231 Kubikzoll in BCD nachgerechnet. Außerdem zeigt es, wie man mit × oder ÷ in beide Richtungen umrechnet.
 
 ### Die Algorithmen (dezimales CORDIC nach Volder/Meggitt)
 
