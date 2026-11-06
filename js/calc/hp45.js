@@ -20,11 +20,19 @@ function clamp(x) {
 }
 
 export class HP45 {
-  constructor() {
+  /** @param {35|45} model the HP-35 (1972) or the HP-45 (1973) */
+  constructor(model = 45) {
+    this.model = model;
+    this.reset();
+  }
+
+  setModel(model) {
+    this.model = model;
     this.reset();
   }
 
   reset() {
+    this.arc = false; // HP-35: the arc prefix key
     this.stack = [0, 0, 0, 0]; // x, y, z, t
     this.lastX = 0;
     this.regs = new Array(10).fill(0); // R1 … R9 (index 0 unused)
@@ -107,10 +115,11 @@ export class HP45 {
   press(id) {
     this.tempFix = null;
     if (this.error) {
-      // any key clears the error display
+      // any key clears the error display (HP-35: stops the blinking)
       this.error = false;
       if (id !== 'clx') return { busy: 0 };
     }
+    if (this.model === 35) return this.press35(id);
     if (id === 'shift') {
       this.shift = !this.shift;
       return { busy: 0 };
@@ -121,6 +130,53 @@ export class HP45 {
     try {
       if (this.pending) return this.handlePending(op, id, shifted);
       return this.exec(op) || { busy: 0 };
+    } catch (err) {
+      if (!(err instanceof CalcError)) throw err;
+      this.entry = null;
+      this.error = true;
+      return { busy: 120 };
+    }
+  }
+
+  /**
+   * HP-35: no shift key. ARC is a prefix for SIN/COS/TAN, STO/RCL use the
+   * single storage register, x^y takes the base from X (exponent ENTER base x^y),
+   * angles are always in degrees.
+   */
+  press35(id) {
+    const arc = this.arc;
+    this.arc = false;
+    this.angle = 'DEG';
+    try {
+      if (id === 'arc') {
+        this.arc = !arc;
+        return { busy: 0 };
+      }
+      if (arc && ['sin', 'cos', 'tan'].includes(id)) return this.exec('a' + id) || { busy: 0 };
+      switch (id) {
+        case 'sto':
+          this.terminate();
+          this.regs[1] = this.x;
+          this.lift = true;
+          return { busy: 30 };
+        case 'rcl':
+          this.recall(this.regs[1]);
+          return { busy: 30 };
+        case 'clr':
+          this.entry = null;
+          this.stack = [0, 0, 0, 0];
+          this.lift = false;
+          return { busy: 0 };
+        case 'pow35': {
+          this.terminate();
+          const [x, y] = this.stack;
+          const r = this.traced('pow35', [x, y], (t) => fn.pow(x, y, t));
+          this.binary(() => r.trace.result);
+          return r;
+        }
+        default:
+          return this.exec(id) || { busy: 0 };
+      }
     } catch (err) {
       if (!(err instanceof CalcError)) throw err;
       this.entry = null;
@@ -475,6 +531,11 @@ export class HP45 {
    * @returns {string} exactly 15 characters
    */
   displayString() {
+    if (this.model === 35) {
+      // the HP-35 has no "Error" message – the display blinks instead (see UI)
+      if (this.entry) return this.entryString();
+      return formatAuto(this.x);
+    }
     if (this.error) return ' Error'.padEnd(15, ' ');
     if (this.entry) return this.entryString();
     const mode = this.tempFix !== null ? 'FIX' : this.dispMode;
@@ -498,6 +559,31 @@ export class HP45 {
  *        very small numbers show as 0 (as on the original).
  * SCI n: d.ddd with a two-digit exponent.
  */
+/**
+ * HP-35 display: no FIX/SCI setting. Numbers from 10^-2 up to 10^10 are shown
+ * in fixed point with the decimal point in place, all others in scientific
+ * notation. Trailing zeros are not shown.
+ */
+export function formatAuto(x) {
+  const sign = x < 0 ? '-' : ' ';
+  const a = Math.abs(x);
+  if (a === 0) return ' 0.'.padEnd(15, ' ');
+  if (a >= 0.01 && a < 9999999999.5) {
+    const intDigits = a < 1 ? 1 : Math.floor(Math.log10(a)) + 1;
+    let n = Math.max(0, 10 - intDigits);
+    let s = a.toFixed(n);
+    while (s.replace('.', '').length > 10 && n > 0) s = a.toFixed(--n);
+    if (s.includes('.')) s = s.replace(/0+$/, '');
+    if (!s.includes('.')) s += '.';
+    return (sign + s).padEnd(15, ' ');
+  }
+  const [m, e] = a.toExponential(9).split('e');
+  let mant = m.replace(/0+$/, '');
+  if (!mant.includes('.')) mant += '.';
+  const exp = parseInt(e, 10);
+  return (sign + mant).padEnd(12, ' ') + (exp < 0 ? '-' : ' ') + String(Math.abs(exp)).padStart(2, '0');
+}
+
 export function formatNumber(x, mode, digits) {
   const sign = x < 0 ? '-' : ' ';
   const a = Math.abs(x);

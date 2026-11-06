@@ -1,10 +1,10 @@
 // Wires calculator, lab, settings and PWA together.
 
 import { HP45 } from './calc/hp45.js';
-import { ALL_KEYS } from './calc/keys.js';
+import { KEY_LAYOUTS } from './calc/keys.js';
 import { buildCalculator } from './ui/calculator.js';
 import { Lab } from './ui/lab.js';
-import { t, setLang, detectLang, applyStatic, getLang, onLang } from './i18n.js';
+import { t, setLang, detectLang, applyStatic, getLang, onLang, setModelName } from './i18n.js';
 import { formatNumber } from './calc/hp45.js';
 
 // ---------------------------------------------------------------- settings
@@ -26,20 +26,23 @@ const store = {
 const settings = {
   timing: store.get('timing', true),
   sound: store.get('sound', false),
+  model: store.get('model', 45) === 35 ? 35 : 45,
 };
+setModelName(settings.model);
 
 // ---------------------------------------------------------------- calculator
-const calc = new HP45();
+const calc = new HP45(settings.model);
 let powered = true;
 let busy = false;
 const queue = [];
 
 const lab = new Lab(document.getElementById('lab'));
-const ui = buildCalculator(document.getElementById('calc'), { onKey: handleKey, onPower });
+const ui = buildCalculator(document.getElementById('calc'), { onKey: handleKey, onPower, onModel, model: settings.model });
 const statusEl = document.getElementById('status');
 
 function refresh() {
   ui.display.show(powered ? calc.displayString() : null);
+  ui.setBlink(powered && calc.error && calc.model === 35); // HP-35: errors make the display blink
   renderStatus();
 }
 
@@ -48,14 +51,15 @@ function renderStatus() {
     statusEl.innerHTML = '';
     return;
   }
-  const mode = `${calc.dispMode} ${calc.dispDigits}`;
+  const is35 = calc.model === 35;
+  const mode = is35 ? t('status.auto') : `${calc.dispMode} ${calc.dispDigits}`;
   const stack = ['T', 'Z', 'Y', 'X'].map((n, i) => {
     const v = calc.stack[3 - i];
     return `<span class="sv"><b>${n}</b>${formatNumber(v, 'SCI', 6).replace(/\s+/g, ' ').trim().replace(/ (-?\d\d)$/, 'e$1')}</span>`;
   }).join('');
   statusEl.innerHTML = `
-    <div class="modes"><span class="${calc.shift ? 'on gold' : ''}">${t('status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>
-    <div class="stack">${stack}</div>`;
+    <div class="modes"><span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>
+    <div class="stack">${stack}${is35 ? `<span class="sv"><b>${t('status.mem')}</b>${formatNumber(calc.regs[1], 'SCI', 6).replace(/\s+/g, ' ').trim().replace(/ (-?\d\d)$/, 'e$1')}</span>` : ''}</div>`;
 }
 
 function handleKey(id) {
@@ -90,6 +94,18 @@ function run(id) {
   }
 }
 
+function onModel(m) {
+  settings.model = m;
+  store.set('model', m);
+  queue.length = 0;
+  busy = false;
+  calc.setModel(m); // switching models is like picking up the other calculator
+  ui.setModel(m);
+  buildKeymap();
+  setModelName(m);
+  refresh();
+}
+
 function onPower(on) {
   powered = on;
   queue.length = 0;
@@ -117,7 +133,11 @@ function click() {
 
 // PC keyboard
 const KB = new Map();
-for (const k of ALL_KEYS) for (const c of k.kb ?? []) KB.set(c, k.id);
+function buildKeymap() {
+  KB.clear();
+  for (const k of KEY_LAYOUTS[calc.model].flat()) for (const c of k.kb ?? []) KB.set(c, k.id);
+}
+buildKeymap();
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.target.closest('input, textarea, select')) return;
