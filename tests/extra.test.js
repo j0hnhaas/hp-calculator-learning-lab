@@ -43,3 +43,26 @@ test('every recipe key gives a story in both languages', () => {
     }
   }
 });
+
+test('conversion keys: constant, derivation of the gallon, story', async () => {
+  const { unitConst } = await import('../js/engine/extra.js');
+  const t = [];
+  const r = unitConst('ltrgal', 10, t);
+  assert.equal(r.result, 3.785411784);
+  assert.equal(r.recipe.at(-1).r, 3.785411784); // 231 × 2.54³ ÷ 1000, computed in BCD
+  assert.equal(r.mul, 37.85411784);
+  const c = new HP45();
+  c.press('d1');
+  c.press('d0');
+  const res = c.press('d7'); // gold not pressed: this is just the digit 7
+  assert.equal(res.trace, undefined);
+  c.press('shift');
+  const k = c.press('d7'); // cm/in
+  assert.equal(c.x, 2.54);
+  assert.equal(c.stack[1], 107);
+  for (const lang of ['de', 'en']) {
+    const st = buildStory(k.trace, lang);
+    assert.equal(st.length, 3);
+    assert.ok(st[2].text.includes('271,78') || st[2].text.includes('271.78'), st[2].text);
+  }
+});

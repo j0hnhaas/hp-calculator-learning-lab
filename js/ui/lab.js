@@ -22,7 +22,7 @@ const REG_NAMES = {
 const DECADE_COLORS = ['#e8b04a', '#e0603c', '#4fa3d9', '#6cc28a', '#b48ae0', '#e07ab4', '#c9c26a', '#7ad0d0', '#d08a5a'];
 const OP_LABEL = {
   sin: 'SIN', cos: 'COS', tan: 'TAN', asin: 'SIN⁻¹', acos: 'COS⁻¹', atan: 'TAN⁻¹',
-  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', fact: 'n!', dpct: 'Δ%', toDMS: '→D.MS', fromDMS: 'D.MS→', sigma: 'Σ+', sigmaMinus: 'Σ−', mean: 'x̄, s', toP: '→P', toR: '→R',
+  ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', cmin: 'cm/in', kglb: 'kg/lb', ltrgal: 'ltr/gal', fact: 'n!', dpct: 'Δ%', toDMS: '→D.MS', fromDMS: 'D.MS→', sigma: 'Σ+', sigmaMinus: 'Σ−', mean: 'x̄, s', toP: '→P', toR: '→R',
 };
 
 const EXAMPLES = [
@@ -47,6 +47,7 @@ function opText(tr, args, unit) {
   if (tr.label === 'sq') return `${y}² = ${res}`;
   if (tr.label === 'pct') return `${x} % × ${y} = ${res}`;
   if (tr.label === 'fact') return `${y}! = ${res}`;
+  if (['cmin', 'kglb', 'ltrgal'].includes(tr.label)) return `${OP_LABEL[tr.label]} → ${res}`;
   if (tr.label === 'dpct') return `Δ% ${y} → ${x} = ${res}`;
   if (tr.label === 'sigma' || tr.label === 'sigmaMinus') return `${OP_LABEL[tr.label]} x = ${y} → n = ${res}`;
   if (tr.label === 'mean') return `${res}`;
@@ -496,7 +497,7 @@ export class Lab {
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
     this.el.op.textContent = opText(tr, args, unit);
-    this.el.cost.textContent = costLabel(tr.steps);
+    this.el.cost.textContent = tr.noCost ? '' : costLabel(tr.steps);
     this.el.cost.hidden = !this.el.cost.textContent;
     this.el.algo.textContent = t('algo.' + s.algo) + (this.binTrace && !isBin(s.algo) ? ` · ${t('method.dec')}` : '');
     this.root.querySelector('.regs-title').innerHTML = rich(t(isBin(s.algo) ? 'lab.registers.bin' : 'lab.registers'));
@@ -521,7 +522,7 @@ export class Lab {
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
     this.el.op.textContent = opText(tr, args, unit);
-    this.el.cost.textContent = costLabel(tr.steps);
+    this.el.cost.textContent = tr.noCost ? '' : costLabel(tr.steps);
     this.el.cost.hidden = !this.el.cost.textContent;
     this.el.algo.textContent = '';
     this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${this.story.length}`;
@@ -670,6 +671,7 @@ export class Lab {
     if (s.algo === 'trig' || s.algo === 'atan' || isBin(s.algo)) this.drawAngle(g, w, h, s, ctx);
     else if (s.algo === 'ln' || s.algo === 'exp') this.drawTrack(g, w, h, s, ctx);
     else if (isArith(s.algo)) this.drawArith(g, w, h, s);
+    else if (s.algo === 'const') this.drawConst(g, w, h, s);
     else this.drawSqrt(g, w, h, s);
     this.drawConv();
   }
@@ -902,6 +904,7 @@ export class Lab {
       const s = this.trace.steps[idx];
       const ctx = this.ctx[idx];
       if (viz.kind === 'coins') this.drawCoins(g, w, h, s, ctx, viz.j);
+      else if (s.algo === 'const') this.drawConst(g, w, h, s);
       else if (isArith(s.algo)) this.drawArith(g, w, h, s);
       else if (viz.kind === 'track' && (s.algo === 'ln' || s.algo === 'exp')) this.drawTrack(g, w, h, s, ctx);
       else if (viz.kind === 'sqrt' && s.algo === 'sqrt') this.drawSqrt(g, w, h, s);
@@ -992,6 +995,43 @@ export class Lab {
     g.fillText(lbl, bx, by + 36);
   }
 
+  /** Conversion constant: 1 in = 2.54 cm, and both directions with the user's number. */
+  drawConst(g, w, h, s) {
+    const lang = getLang();
+    const css = getComputedStyle(this.root);
+    const ink = css.getPropertyValue('--lab-ink').trim() || '#ddd';
+    const dim = css.getPropertyValue('--lab-dim').trim() || '#666';
+    const U = { cmin: ['in', 'cm'], kglb: ['lb', 'kg'], ltrgal: ['gal', 'l'] }[s.key] ?? ['?', '?'];
+    const k = nf(s.k, lang, 10);
+    // shrink a line until it fits the width
+    const fit = (text, size, weight = '') => {
+      let fs = size;
+      g.font = `${weight}${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      while (fs > 9 && g.measureText(text).width > w - 24) {
+        fs -= 0.5;
+        g.font = `${weight}${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      }
+    };
+    g.textAlign = 'center';
+    g.fillStyle = '#ff8a73';
+    const head = `1 ${U[0]} = ${k} ${U[1]}`;
+    fit(head, 30, '700 ');
+    g.fillText(head, w / 2, h * 0.32);
+    const v = s.v || 10;
+    const mul = s.mul || v * s.k;
+    const div = s.div || v / s.k;
+    const l1 = `${nf(v, lang)} ${U[0]} × ${k} → ${nf(mul, lang, 8)} ${U[1]}`;
+    const l2 = `${nf(v, lang)} ${U[1]} ÷ ${k} → ${nf(div, lang, 8)} ${U[0]}`;
+    g.fillStyle = ink;
+    fit(l1.length > l2.length ? l1 : l2, 17);
+    g.fillText(l1, w / 2, h * 0.58);
+    g.fillText(l2, w / 2, h * 0.74);
+    g.font = '12px ui-monospace, Menlo, Consolas, monospace';
+    g.fillStyle = dim;
+    g.fillText('ROM', w / 2, h * 0.92);
+    g.textAlign = 'left';
+  }
+
   /** Long arithmetic on paper: digits in columns, the current column highlighted. */
   drawArith(g, w, h, s) {
     const css = getComputedStyle(this.root);
@@ -1000,24 +1040,37 @@ export class Lab {
     const hot = '#ff6a55';
     const rows = [];
     const steps = this.trace.steps;
+    // the start of the current operation (several operations can follow each other)
+    let k0 = this.i;
+    while (k0 > 0 && !(steps[k0].algo === s.algo && (steps[k0].phase === 'align' || steps[k0].phase === 'exp'))) k0--;
+    const run = steps.slice(k0, this.i + 1);
+    const start = steps[k0];
+    const fin = s.phase === 'final' && start.x !== undefined;
+    const real = (v) => (Number.isInteger(v) ? String(v) : String(v));
     if (s.algo === 'add') {
-      const A = s.regs.A ?? steps.find((x) => x.algo === 'add' && x.regs?.A)?.regs.A;
-      const B = s.regs.B ?? steps.find((x) => x.algo === 'add' && x.regs?.B)?.regs.B;
-      const sub = steps.some((x) => x.algo === 'add' && x.sub);
+      const A = fin ? real(start.x) : s.regs.A ?? run.find((x) => x.regs?.A)?.regs.A;
+      const B = fin ? real(Math.abs(start.y)) : s.regs.B ?? run.find((x) => x.regs?.B)?.regs.B;
+      const sub = fin ? start.op === 'sub' || start.y < 0 : run.some((x) => x.sub);
       if (A) rows.push({ label: ' ', text: A });
       if (B) rows.push({ label: sub ? '−' : '+', text: B, line: true });
       if (s.regs.S) rows.push({ label: '=', text: s.regs.S, result: true });
     } else if (s.algo === 'mul') {
-      const ref = s.regs.A ? s : steps.find((x) => x.algo === 'mul' && x.regs?.A);
-      if (ref) {
+      const ref = s.regs.A ? s : run.find((x) => x.regs?.A);
+      if (fin) {
+        rows.push({ label: ' ', text: real(start.x) });
+        rows.push({ label: '×', text: real(start.y), line: true });
+      } else if (ref) {
         rows.push({ label: ' ', text: ref.regs.A });
         rows.push({ label: '×', text: ref.regs.B, line: true, hiFromRight: s.phase === 'mdigit' ? s.i : undefined });
       }
       if (s.regs.P) rows.push({ label: '=', text: s.regs.P.includes('.') ? s.regs.P : scaled(s.regs.P, 18), result: true });
     } else {
-      const Braw = s.regs.B ?? steps.find((x) => x.algo === 'div' && x.regs?.B)?.regs.B;
+      const Braw = s.regs.B ?? run.find((x) => x.regs?.B)?.regs.B;
       const B = Braw ? scaled(Braw, 9) : undefined;
-      if (s.phase === 'qdigit') {
+      if (fin) {
+        rows.push({ label: ' ', text: real(start.x) });
+        rows.push({ label: '÷', text: real(start.y), line: true });
+      } else if (s.phase === 'qdigit') {
         rows.push({ label: t('arith.rest'), text: scaled(s.before, 9) });
         rows.push({ label: '−', text: `${s.digit} × ${B}`, line: true });
         rows.push({ label: '=', text: scaled(s.after, 9) });
@@ -1025,8 +1078,8 @@ export class Lab {
       } else {
         if (s.regs.R) rows.push({ label: t('arith.rest'), text: scaled(s.regs.R, 9) });
         if (B) rows.push({ label: '÷', text: B, line: true });
-        if (s.regs.Q) rows.push({ label: '=', text: s.regs.Q, result: true });
       }
+      if (!fin && s.phase !== 'qdigit' && s.regs.Q) rows.push({ label: '=', text: s.regs.Q, result: true });
     }
     // in the last step show the real result (mantissa and exponent put together)
     if (s.phase === 'final' && s.result !== undefined) {

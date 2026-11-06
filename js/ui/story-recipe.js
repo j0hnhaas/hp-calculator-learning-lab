@@ -105,3 +105,55 @@ export function recipeStory(tr, lang) {
   });
   return out;
 }
+
+// ---------------------------------------------------------------- conversion keys
+const UNIT_TEXT = {
+  cmin: {
+    de: { a: 'Zoll', b: 'cm', origin: 'Seit 1959 ist ein Zoll (inch) international auf <b>genau 2,54 cm</b> festgelegt – das ist eine Definition, keine Messung.' },
+    en: { a: 'inches', b: 'cm', origin: 'Since 1959 an inch has been internationally defined as <b>exactly 2.54 cm</b> – a definition, not a measurement.' },
+  },
+  kglb: {
+    de: { a: 'Pfund', b: 'kg', origin: 'Seit 1959 ist ein Pfund (pound) international auf <b>genau 0,45359237 kg</b> festgelegt.' },
+    en: { a: 'pounds', b: 'kg', origin: 'Since 1959 a pound has been internationally defined as <b>exactly 0.45359237 kg</b>.' },
+  },
+  ltrgal: {
+    de: { a: 'Gallonen', b: 'Liter', origin: 'Eine US-Gallone ist 231 Kubikzoll. Weil ein Zoll genau 2,54 cm ist, folgt: 231 × 2,54 × 2,54 × 2,54 = 3785,411784 cm³ = <b>3,785411784 Liter</b>.' },
+    en: { a: 'gallons', b: 'litres', origin: 'A US gallon is 231 cubic inches. Since an inch is exactly 2.54 cm: 231 × 2.54 × 2.54 × 2.54 = 3785.411784 cm³ = <b>3.785411784 litres</b>.' },
+  },
+};
+
+export function unitStory(tr, lang) {
+  const de = lang === 'de';
+  const U = UNIT_TEXT[tr.label]?.[lang] ?? UNIT_TEXT[tr.label]?.en;
+  if (!U) return null;
+  const st = tr.steps;
+  const use = st.find((s) => s.phase === 'use');
+  const k = nf(use.k, lang, 10);
+  const v = use.v;
+  const out = [{
+    title: de ? 'Eine Zahl aus dem Speicher' : 'A number from memory',
+    text: de
+      ? `Diese Taste rechnet nichts aus: Sie legt nur die Zahl <b>${k}</b> auf den [[stack|Stapel]] – so viele ${U.b} hat ein ${U.a.replace(/n$/, '')}. Die eigentliche Umrechnung machst du danach mit × oder ÷.`
+      : `This key computes nothing: it just puts the number <b>${k}</b> on the [[stack|stack]] – the number of ${U.b} in one ${U.a.replace(/s$/, '')}. You do the actual conversion afterwards with × or ÷.`,
+    viz: { kind: 'const', idx: 0 },
+  }];
+  // show the last multiplication of the derivation: 231 × 2.54³ = 3785.411784
+  const lastDeriv = st.reduce((acc, s, i) => (s.algo === 'mul' && s.phase === 'final' ? i : acc), -1);
+  out.push({
+    title: de ? 'Woher kommt die Zahl?' : 'Where does the number come from?',
+    text: U.origin + (lastDeriv >= 0
+      ? (de ? ' Der Rechner rechnet das nicht jedes Mal aus – die fertige Zahl steht im [[rom|ROM]]. Hier rechnen wir sie zur Probe nach.' : ' The calculator does not work this out every time – the finished number is in [[rom|ROM]]. Here we just check it.')
+      : (de ? ' Die Zahl steht fertig im [[rom|ROM]].' : ' The number is stored ready-made in [[rom|ROM]].')),
+    viz: lastDeriv >= 0 ? { kind: 'arith', idx: lastDeriv } : { kind: 'const', idx: 0 },
+  });
+  const ex = v || 10;
+  out.push({
+    title: de ? 'So rechnest du um' : 'How to convert',
+    text: de
+      ? `Die Zahl, die vorher in X stand (${nf(ex, lang)}), ist nach Y gerutscht. Jetzt entscheidest du:<br>× → ${nf(ex, lang)} ${U.a} sind <b>${nf(v ? use.mul : ex * use.k, lang, 10)} ${U.b}</b><br>÷ → ${nf(ex, lang)} ${U.b} sind <b>${nf(v ? use.div : ex / use.k, lang, 10)} ${U.a}</b>`
+      : `The number that was in X before (${nf(ex, lang)}) has moved up to Y. Now you decide:<br>× → ${nf(ex, lang)} ${U.a} are <b>${nf(v ? use.mul : ex * use.k, lang, 10)} ${U.b}</b><br>÷ → ${nf(ex, lang)} ${U.b} are <b>${nf(v ? use.div : ex / use.k, lang, 10)} ${U.a}</b>`,
+    merke: de ? 'Eine Konstante plus × oder ÷ – so geht jede Umrechnung in beide Richtungen.' : 'A constant plus × or ÷ – that is how every conversion works, in both directions.',
+    viz: { kind: 'const', idx: st.indexOf(use) },
+  });
+  return out;
+}

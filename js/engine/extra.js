@@ -115,3 +115,33 @@ export function meanStd(R, trace) {
   }
   return { result: mean, s, recipe };
 }
+
+/** The conversion keys only push a constant from the ROM. */
+export const UNITS = {
+  cmin: { k: 2.54, from: 'in', to: 'cm' },
+  kglb: { k: 0.45359237, from: 'lb', to: 'kg' },
+  ltrgal: { k: 3.785411784, from: 'gal', to: 'l' },
+};
+
+/**
+ * Trace for a conversion key. The calculator just recalls the constant; for
+ * the gallon we also re-derive it from the inch (231 in³ × 2.54³ ÷ 1000) to
+ * show where the number comes from – the HP does not do that, it is in ROM.
+ * @param {number} v the value the user had in X (it moves up to Y)
+ */
+export function unitConst(key, v, trace) {
+  const u = UNITS[key];
+  const { recipe, step } = recorder(trace);
+  trace?.push({ algo: 'const', phase: 'const', key, k: u.k, v, regs: { K: String(u.k) }, msg: ['const.push', { k: u.k }] });
+  if (key === 'ltrgal') {
+    const a = step('mul', 231, 2.54, () => A.mul(231, 2.54, trace));
+    const b = step('mul', a, 2.54, () => A.mul(a, 2.54, trace));
+    const c = step('mul', b, 2.54, () => A.mul(b, 2.54, trace));
+    step('div', c, 1000, () => A.div(c, 1000, trace));
+  }
+  // both directions, with the user's own number
+  const toMul = v ? A.mul(v, u.k) : 0;
+  const toDiv = v ? A.div(v, u.k) : 0;
+  trace?.push({ algo: 'const', phase: 'use', key, k: u.k, v, mul: toMul, div: toDiv, regs: { K: String(u.k) }, msg: ['const.use', { k: u.k }] });
+  return { result: u.k, recipe, mul: toMul, div: toDiv };
+}
