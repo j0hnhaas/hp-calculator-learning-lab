@@ -15,6 +15,10 @@ Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pr
 
 - **RPN in einer Minute:** vier kurze Karten erklären, wie man ohne =-Taste rechnet. Danach folgen drei Übungen direkt am Rechner, der richtige Lösungen erkennt. Beim ersten Besuch erscheint dazu ein Hinweis.
 - **Stapel live:** Unter dem Rechner ist der Stack als Stapel T–Z–Y–X zu sehen. Geänderte Werte leuchten kurz auf.
+- **Drei Stufen im Labor „So rechnet er“:**
+  - **Einfach** (Standard): Die Rechnung wird in 4 bis 11 Schritten erzählt. Winkel werden mit „Münzen“ bezahlt (45°, 5,71°, 0,573° …), Logarithmen über Zinsen erklärt (100 %, 10 %, 1 % …). Dazu kommen Merksätze und eine Münz-Grafik. Im Modus „Mitraten“ fragt das Labor vor jeder großen Münze, wie oft sie passt.
+  - **Detail:** alle Mikroschritte mit Konvergenz-Plot und Konstantentabelle
+  - **Profi:** zusätzlich BCD-Register und der Vergleich mit binärem CORDIC
 - **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
 
 ### Zwei Rechner: HP-35 und HP-45

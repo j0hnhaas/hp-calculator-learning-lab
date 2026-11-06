@@ -1,6 +1,7 @@
 // The "Inside" lab: replays the decimal CORDIC trace step by step.
 
-import { t, tm, sup, sub, p10, onLang, getLang, rich } from '../i18n.js';
+import { t, tm, sup, sub, p10, onLang, getLang, rich, localize } from '../i18n.js';
+import { buildStory, nf, coinDeg } from './story.js';
 import { fmtFixed, S } from '../engine/decimal.js';
 import { ATAN_STR, LN_STR } from '../engine/constants.js';
 import * as fn from '../engine/functions.js';
@@ -34,6 +35,11 @@ const EXAMPLES = [
 const num = (v) => Number(v) / Number(S);
 const CONV_PAD_L = 24;
 
+/** Story texts are our own markup (<b>) plus [[term|label]] links. */
+function renderTrusted(str) {
+  return String(str).replace(/\[\[([a-z]+)\|([^\]]+)\]\]/g, '<button type="button" class="term" data-term="$1">$2</button>');
+}
+
 /** The same calculation with classic binary CORDIC */
 function binaryTwin(tr) {
   const steps = [];
@@ -65,8 +71,16 @@ export class Lab {
     this.timer = null;
     this.speed = 8;
     this.autoplay = true;
+    this.guess = false;
+    try {
+      this.level = localStorage.getItem('hp45.level') || 'simple';
+    } catch {
+      this.level = 'simple';
+    }
     this.build();
+    this.applyLevel();
     onLang(() => {
+      if (this.base) this.story = buildStory(this.base, getLang());
       this.renderCompare();
       this.render();
     });
@@ -81,6 +95,11 @@ export class Lab {
       <div class="lab-empty"><p data-i18n-rich="lab.empty"></p></div>
       <div class="lab-body" hidden>
         <div class="lab-op"><span class="op-text"></span><span class="op-algo"></span></div>
+        <div class="levels" role="group">
+          <button type="button" data-lv="simple" data-i18n="level.simple"></button>
+          <button type="button" data-lv="detail" data-i18n="level.detail"></button>
+          <button type="button" data-lv="pro" data-i18n="level.pro"></button>
+        </div>
         <div class="method" role="group" hidden>
           <button type="button" data-m="dec" data-i18n="method.dec"></button>
           <button type="button" data-m="bin" data-i18n="method.bin"></button>
@@ -88,6 +107,12 @@ export class Lab {
         <ol class="phases"></ol>
         <div class="viz-wrap"><canvas class="viz"></canvas></div>
         <p class="explain" aria-live="polite"></p>
+        <div class="story" aria-live="polite">
+          <h3 class="story-title"></h3>
+          <p class="story-text"></p>
+          <div class="quiz" hidden></div>
+          <div class="merke" hidden><span class="merke-label"></span><p></p></div>
+        </div>
         <div class="conv-box">
           <div class="conv-head"><h3 data-i18n-rich="lab.conv.title"></h3><span class="conv-now"></span></div>
           <div class="conv-wrap"><canvas class="conv" aria-hidden="true"></canvas></div>
@@ -104,7 +129,8 @@ export class Lab {
         <input type="range" class="scrub" min="0" max="0" value="0" aria-label="step">
         <div class="speedrow">
           <label><span data-i18n="lab.speed"></span> <input type="range" class="speed" min="1" max="40" value="8"></label>
-          <label class="chk"><input type="checkbox" class="autoplay" checked> <span data-i18n="lab.autoplay"></span></label>
+          <label class="chk only-detail"><input type="checkbox" class="autoplay" checked> <span data-i18n="lab.autoplay"></span></label>
+          <label class="chk only-simple"><input type="checkbox" class="guess"> <span data-i18n="lab.guess"></span></label>
         </div>
         <div class="tables">
           <div class="regs"><h3 class="regs-title"></h3><div class="reg-list"></div></div>
@@ -157,6 +183,19 @@ export class Lab {
       const k = Math.round(((e.clientX - r.left - CONV_PAD_L) / (r.width - CONV_PAD_L - 8)) * (n - 1));
       this.stop();
       this.go(k);
+    });
+    this.root.querySelector('.levels').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-lv]');
+      if (b) this.setLevel(b.dataset.lv);
+    });
+    q('.guess').addEventListener('change', (e) => {
+      this.guess = e.target.checked;
+      this.revealed = new Set();
+      this.render();
+    });
+    this.root.querySelector('.quiz').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-guess]');
+      if (b) this.answer(+b.dataset.guess);
     });
     this.el.method.addEventListener('click', (e) => {
       const b = e.target.closest('[data-m]');
@@ -239,14 +278,61 @@ export class Lab {
     this.decConv = convergence(trace.steps);
     this.binConv = this.binTrace ? convergence(this.binTrace.steps) : null;
     this.method ??= 'dec';
+    if (this.level !== 'pro') this.method = 'dec';
     this.trace = this.method === 'bin' && this.binTrace ? this.binTrace : trace;
+    this.story = buildStory(trace, getLang());
+    this.revealed = new Set();
+    this.feedback = {};
     this.renderMethod();
     this.renderCompare();
     this.prepare();
-    this.el.scrub.max = String(trace.steps.length - 1);
+    this.el.scrub.max = String(this.count() - 1);
     this.i = 0;
     this.render();
-    if (this.autoplay) this.play();
+    // in the simple level the reader sets the pace
+    if (this.autoplay && this.level !== 'simple') this.play();
+  }
+
+  /** number of steps at the current level */
+  count() {
+    if (!this.trace) return 0;
+    return this.level === 'simple' ? this.story.length : this.trace.steps.length;
+  }
+
+  applyLevel() {
+    this.root.classList.toggle('lv-simple', this.level === 'simple');
+    this.root.classList.toggle('lv-detail', this.level === 'detail');
+    this.root.classList.toggle('lv-pro', this.level === 'pro');
+    this.root.querySelectorAll('.levels button').forEach((b) => b.classList.toggle('on', b.dataset.lv === this.level));
+  }
+
+  setLevel(lv) {
+    if (lv === this.level) return;
+    this.level = lv;
+    try {
+      localStorage.setItem('hp45.level', lv);
+    } catch { /* storage unavailable */ }
+    this.applyLevel();
+    if (!this.base) return;
+    this.stop();
+    if (lv !== 'pro' && this.method === 'bin') {
+      this.method = 'dec';
+      this.trace = this.base;
+      this.prepare();
+      this.renderMethod();
+    }
+    this.el.scrub.max = String(this.count() - 1);
+    this.i = 0;
+    this.render();
+  }
+
+  /** "guess along": the user answers how often a coin fits */
+  answer(n) {
+    const st = this.story[this.i];
+    if (!st?.quiz) return;
+    this.feedback[this.i] = n === st.quiz.answer ? { ok: true } : { ok: false, n };
+    this.revealed.add(this.i);
+    this.render();
   }
 
   setMethod(m) {
@@ -338,7 +424,7 @@ export class Lab {
 
   act(a) {
     if (!this.trace) return;
-    const n = this.trace.steps.length;
+    const n = this.count();
     if (a === 'play') return this.timer ? this.stop() : this.play();
     this.stop();
     if (a === 'first') this.go(0);
@@ -348,18 +434,21 @@ export class Lab {
   }
 
   go(i) {
-    const n = this.trace.steps.length;
+    const n = this.count();
     this.i = Math.max(0, Math.min(n - 1, i));
     this.render();
   }
 
   play() {
     clearInterval(this.timer);
-    if (this.i >= this.trace.steps.length - 1) this.i = 0;
+    if (this.i >= this.count() - 1) this.i = 0;
+    const simple = this.level === 'simple';
     this.timer = setInterval(() => {
-      if (this.i >= this.trace.steps.length - 1) return this.stop();
+      if (this.i >= this.count() - 1) return this.stop();
+      // stop at a question the user has not answered yet
+      if (simple && this.guess && this.story[this.i]?.quiz && !this.revealed.has(this.i)) return this.stop();
       this.go(this.i + 1);
-    }, 1000 / this.speed);
+    }, simple ? 40000 / this.speed : 1000 / this.speed);
     this.el.play.textContent = '❚❚';
   }
 
@@ -375,6 +464,7 @@ export class Lab {
     this.el.body.hidden = !has;
     if (!has) return;
     const tr = this.trace;
+    if (this.level === 'simple') return this.renderStory();
     const s = tr.steps[this.i];
     const args = tr.args.map(fmtNum).join(', ');
     const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
@@ -391,6 +481,41 @@ export class Lab {
     this.el.convNote.innerHTML = rich(t('lab.conv.note.' + noteKey));
     this.renderRegs(s);
     this.renderConsts(s);
+    this.draw();
+  }
+
+  renderStory() {
+    const tr = this.trace;
+    const lang = getLang();
+    const st = this.story[this.i];
+    const args = tr.args.map(fmtNum).join(', ');
+    const unit = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'toP', 'toR'].includes(tr.label) && tr.angle ? ` (${tr.angle})` : '';
+    this.el.op.textContent = `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${tr.resultText ?? fmtNum(tr.result)}`;
+    this.el.algo.textContent = '';
+    this.el.stepno.textContent = `${t('lab.step')} ${this.i + 1} ${t('lab.of')} ${this.story.length}`;
+    this.el.scrub.value = String(this.i);
+    const box = this.root.querySelector('.story');
+    box.querySelector('.story-title').textContent = localize(st.title);
+    const quiz = box.querySelector('.quiz');
+    const ask = this.guess && st.quiz && !this.revealed.has(this.i);
+    this.hideCurrent = ask;
+    if (ask) {
+      box.querySelector('.story-text').innerHTML = rich(localize(st.quiz.question));
+      quiz.hidden = false;
+      quiz.innerHTML = Array.from({ length: st.quiz.max + 1 }, (_, n) => `<button type="button" class="chip" data-guess="${n}">${n}</button>`).join('');
+    } else {
+      box.querySelector('.story-text').innerHTML = renderTrusted(localize(st.text));
+      const fb = this.feedback?.[this.i];
+      quiz.hidden = !fb;
+      quiz.innerHTML = fb ? `<p class="fb ${fb.ok ? 'ok' : 'no'}">${fb.ok ? t('lab.guess.ok') : t('lab.guess.no').replace('{n}', st.quiz.answer).replace('{g}', fb.n)}</p>` : '';
+    }
+    const m = box.querySelector('.merke');
+    m.hidden = !st.merke || ask;
+    if (st.merke) {
+      m.querySelector('.merke-label').textContent = t('lab.merke');
+      m.querySelector('p').innerHTML = renderTrusted(localize(st.merke));
+    }
+    void lang;
     this.draw();
   }
 
@@ -505,9 +630,10 @@ export class Lab {
     const g = c.getContext('2d');
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     g.clearRect(0, 0, w, h);
+    g.font = '12px ui-monospace, Menlo, Consolas, monospace';
+    if (this.level === 'simple') return this.drawStoryViz(g, w, h);
     const s = this.trace.steps[this.i];
     const ctx = this.ctx[this.i];
-    g.font = '12px ui-monospace, Menlo, Consolas, monospace';
     if (s.algo === 'trig' || s.algo === 'atan' || isBin(s.algo)) this.drawAngle(g, w, h, s, ctx);
     else if (s.algo === 'ln' || s.algo === 'exp') this.drawTrack(g, w, h, s, ctx);
     else this.drawSqrt(g, w, h, s);
@@ -727,6 +853,108 @@ export class Lab {
     g.restore();
     g.fillStyle = ink;
     g.fillText(`${t('lab.zoom')} ×${bin ? '2' : '10'}${sup(j)}`, zx + 6, zy + 16);
+  }
+
+  /** Simple level: draw the picture that belongs to the current story step. */
+  drawStoryViz(g, w, h) {
+    const viz = this.story[this.i]?.viz;
+    if (!viz) return;
+    // while the user is guessing, show the picture from before this coin
+    const raw = this.hideCurrent && viz.prev !== undefined && viz.prev >= 0 ? viz.prev : viz.idx;
+    const idx = Math.max(0, Math.min(this.trace.steps.length - 1, raw));
+    const save = this.i;
+    this.i = idx; // the detail drawings read this.i (trails, sums)
+    try {
+      const s = this.trace.steps[idx];
+      const ctx = this.ctx[idx];
+      if (viz.kind === 'coins') this.drawCoins(g, w, h, s, ctx, viz.j);
+      else if (viz.kind === 'track' && (s.algo === 'ln' || s.algo === 'exp')) this.drawTrack(g, w, h, s, ctx);
+      else if (viz.kind === 'sqrt' && s.algo === 'sqrt') this.drawSqrt(g, w, h, s);
+      else if (s.algo === 'trig' || s.algo === 'atan') this.drawAngle(g, w, h, s, ctx);
+      else if (s.algo === 'ln' || s.algo === 'exp') this.drawTrack(g, w, h, s, ctx);
+      else this.drawSqrt(g, w, h, s);
+    } finally {
+      this.i = save;
+    }
+  }
+
+  /** The coin purse: 45°, 5.71°, 0.573° … and how often each one fits. */
+  drawCoins(g, w, h, s, ctx, curJ) {
+    const lang = getLang();
+    const css = getComputedStyle(this.root);
+    const ink = css.getPropertyValue('--lab-ink').trim() || '#ddd';
+    const dim = css.getPropertyValue('--lab-dim').trim() || '#666';
+    const q = s.q ?? [];
+    const hide = this.hideCurrent;
+    const n = q.length;
+    const target = (ctx.theta0 ?? 0) * 180 / Math.PI;
+    // coins
+    const top = 18;
+    const radius = (j) => Math.max(9, 34 * 0.8 ** j);
+    const gap = (w - 24) / n;
+    for (let j = 0; j < n; j++) {
+      const r = radius(j);
+      const cx = 12 + gap * (j + 0.5);
+      const cy = top + 36;
+      const active = j === curJ;
+      const known = j < curJ || (j === curJ && !hide);
+      const grd = g.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
+      grd.addColorStop(0, '#fff3c4');
+      grd.addColorStop(0.45, DECADE_COLORS[j]);
+      grd.addColorStop(1, '#5a3d12');
+      g.globalAlpha = j > curJ ? 0.35 : 1;
+      g.fillStyle = grd;
+      g.beginPath();
+      g.arc(cx, cy, r, 0, Math.PI * 2);
+      g.fill();
+      g.lineWidth = active ? 3 : 1;
+      g.strokeStyle = active ? '#ff4a33' : '#0008';
+      g.stroke();
+      g.globalAlpha = 1;
+      g.textAlign = 'center';
+      // labels: staggered in two rows and shrunk to fit, so small coins never overlap
+      const label = `${nf(coinDeg(j), lang, 3)}°`;
+      let fs = 11;
+      g.font = `${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      while (fs > 8 && g.measureText(label).width > gap * 1.85) {
+        fs -= 0.5;
+        g.font = `${fs}px ui-monospace, Menlo, Consolas, monospace`;
+      }
+      g.fillStyle = ink;
+      g.fillText(label, cx, cy + 34 + 8 + (j % 2) * 13);
+      g.font = 'bold 15px ui-monospace, Menlo, Consolas, monospace';
+      g.fillStyle = active ? '#ff6a55' : ink;
+      g.fillText(known ? `${q[j]}×` : '?', cx, cy + 34 + 44);
+    }
+    g.textAlign = 'left';
+    // payment bar: how much of the angle the coins already cover
+    const by = h - 54;
+    const bx = 14;
+    const bw = w - 28;
+    g.fillStyle = '#ffffff10';
+    g.fillRect(bx, by, bw, 16);
+    let paid = 0;
+    for (let j = 0; j <= curJ; j++) {
+      const cnt = j === curJ && hide ? 0 : q[j];
+      for (let k = 0; k < cnt; k++) {
+        const x0 = bx + (paid / target) * bw;
+        paid += coinDeg(j);
+        const x1 = bx + (paid / target) * bw;
+        g.fillStyle = DECADE_COLORS[j];
+        g.fillRect(x0, by, Math.max(1, x1 - x0 - 1), 16);
+      }
+    }
+    g.strokeStyle = ink;
+    g.lineWidth = 2;
+    g.beginPath();
+    g.moveTo(bx + bw, by - 6);
+    g.lineTo(bx + bw, by + 22);
+    g.stroke();
+    g.font = '12px ui-monospace, Menlo, Consolas, monospace';
+    g.fillStyle = dim;
+    const lbl = `${t('coins.target')} ${nf(target, lang)}° · ${t('coins.paid')} ${nf(paid, lang)}° · ${t('coins.missing')} ${nf(Math.max(0, target - paid), lang, 3)}°`;
+    g.fillStyle = ink;
+    g.fillText(lbl, bx, by + 36);
   }
 
   /** Convergence plot: correct digits per step. */

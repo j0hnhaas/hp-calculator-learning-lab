@@ -507,3 +507,44 @@ h3 .term { text-transform: inherit; letter-spacing: inherit; }
   .settings::-webkit-scrollbar { display: none; }
   .settings .pill { flex: none; }
 }
+
+/* ---------------------------------------------------------------- lab levels: simple · detail · expert */
+.levels { display: inline-flex; margin: 0 0 10px; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.levels button { border: 0; background: var(--bg2); padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--muted); }
+.levels button + button { border-left: 1px solid var(--line); }
+.levels button.on { background: var(--gold); color: #1b1408; font-weight: 600; }
+.levels + .method { margin-left: 8px; }
+
+.lab.lv-simple .phases,
+.lab.lv-simple .explain,
+.lab.lv-simple .conv-box,
+.lab.lv-simple .tables,
+.lab.lv-simple .method,
+.lab.lv-simple .compare,
+.lab.lv-simple .op-algo,
+.lab.lv-simple .only-detail,
+.lab:not(.lv-simple) .only-simple,
+.lab:not(.lv-simple) .story,
+.lab.lv-detail .method,
+.lab.lv-detail .compare,
+.lab.lv-detail .regs { display: none !important; }
+.lab.lv-detail .tables { grid-template-columns: 1fr; }
+
+/* the story card */
+.story { margin: 12px 2px 6px; min-height: 9em; }
+.story-title { margin: 0 0 6px; font-size: 16px; color: var(--gold); text-transform: none; letter-spacing: 0; }
+.story-text { margin: 0; font-size: 15.5px; line-height: 1.55; }
+.story-text b { color: #fff; }
+.merke {
+  margin-top: 12px; padding: 10px 12px; border-radius: 10px;
+  background: #2c2720; border-left: 3px solid #6cc28a;
+}
+.merke-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8fd6a6; }
+.merke p { margin: 4px 0 0; font-size: 14.5px; }
+.quiz { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.quiz .chip { min-width: 40px; font-size: 15px; font-weight: 600; }
+.quiz .fb { margin: 0; font-size: 14.5px; }
+.quiz .fb.ok { color: #9be3b4; }
+.quiz .fb.no { color: #ffb4a5; }
+.lab.lv-simple .controls .icon-btn[data-act="next"] { background: var(--gold); color: #1b1408; border-color: var(--gold); min-width: 56px; }
+.lab.lv-simple .icon-btn.play { background: var(--bg2); color: var(--ink); border-color: var(--line); }
