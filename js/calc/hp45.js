@@ -7,11 +7,13 @@ import { CalcError } from '../engine/functions.js';
 import { round10 } from '../engine/decimal.js';
 import * as arith from '../engine/arith.js';
 import * as extra from '../engine/extra.js';
-import { ALL_KEYS } from './keys.js';
+import { ALL_KEYS, KEY_ROWS_55 } from './keys.js';
 
 const MAX = 9.999999999e99;
 const DIGIT = { d0: 0, d1: 1, d2: 2, d3: 3, d4: 4, d5: 5, d6: 6, d7: 7, d8: 8, d9: 9 };
 const GOLD = Object.fromEntries(ALL_KEYS.filter((k) => k.gid).map((k) => [k.id, k.gid]));
+const F55 = Object.fromEntries(KEY_ROWS_55.flat().filter((k) => k.gid).map((k) => [k.id, k.gid]));
+const G55 = Object.fromEntries(KEY_ROWS_55.flat().filter((k) => k.bid).map((k) => [k.id, k.bid]));
 
 /** Keep a result inside the calculator's range: 10 digits, |x| < 10^100 */
 function clamp(x) {
@@ -37,7 +39,8 @@ export class HP45 {
     this.arc = false; // HP-35: the arc prefix key
     this.stack = [0, 0, 0, 0]; // x, y, z, t
     this.lastX = 0;
-    this.regs = new Array(10).fill(0); // R1 … R9 (index 0 unused)
+    // HP-45: R1 … R9 (index 0 unused); HP-55: R0 … R9 and R.0 … R.9 (index 10 … 19)
+    this.regs = new Array(this.model === 55 ? 20 : 10).fill(0);
     this.angle = 'DEG';
     this.dispMode = 'FIX';
     this.dispDigits = 2; // HP-45 powers up in FIX 2
@@ -122,6 +125,7 @@ export class HP45 {
       if (id !== 'clx') return { busy: 0 };
     }
     if (this.model === 35) return this.press35(id);
+    if (this.model === 55) return this.press55(id);
     if (id === 'shift') {
       this.shift = !this.shift;
       return { busy: 0 };
@@ -187,9 +191,132 @@ export class HP45 {
     }
   }
 
+  /**
+   * HP-55: two prefix keys, f (gold) and g (blue). Programming keys
+   * (R/S, SST, GTO, x≤y, x=y) do nothing yet – that is part 2.
+   */
+  press55(id) {
+    if (id === 'fkey' || id === 'gkey') {
+      const want = id === 'fkey' ? 'f' : 'g';
+      this.shift = this.shift === want ? false : want;
+      return { busy: 0 };
+    }
+    const sh = this.shift;
+    this.shift = false;
+    if (id === 'bst' && !sh) {
+      this.pending = null; // BST also clears a pending prefix
+      return { busy: 0 };
+    }
+    const op = sh === 'f' ? F55[id] ?? id : sh === 'g' ? G55[id] ?? id : id;
+    try {
+      if (this.pending) return this.handlePending(op, id, !!sh);
+      return this.exec55(op) || { busy: 0 };
+    } catch (err) {
+      if (!(err instanceof CalcError)) throw err;
+      this.entry = null;
+      this.error = true;
+      return { busy: 120 };
+    }
+  }
+
+  /** a recipe from extra.js with its trace for the lab */
+  recipeOp(label, args, run) {
+    let rec;
+    const r = this.traced(label, args, (t) => {
+      rec = run(t);
+      return rec.result;
+    });
+    r.trace.recipe = rec.recipe;
+    return { r, rec };
+  }
+
+  exec55(op) {
+    const R = this.regs;
+    if (extra.CONV55[op]) {
+      this.terminate();
+      const x = this.x;
+      const { r, rec } = this.recipeOp(op, [x], (t) => extra.convert(op, x, t));
+      r.trace.conv = rec.conv;
+      this.unary(() => r.trace.result);
+      return r;
+    }
+    switch (op) {
+      case 'rs':
+      case 'sst':
+      case 'gto':
+      case 'xle':
+      case 'xeq':
+        return { busy: 0 }; // programming: part 2
+      case 'sigma55':
+      case 'sigmaMinus55': {
+        this.terminate();
+        const [x, y] = this.stack;
+        const { r } = this.recipeOp(op, [x, y], (t) => extra.sigma55(x, y, R, op === 'sigma55' ? 1 : -1, t));
+        for (let i = 10; i <= 15; i++) R[i] = clamp(R[i]);
+        this.lastX = x;
+        this.x = R[10];
+        this.lift = false;
+        return r;
+      }
+      case 'mean55':
+      case 'sdev55':
+      case 'lr': {
+        this.terminate();
+        const f = { mean55: extra.means55, sdev55: extra.sdev55, lr: extra.linreg55 }[op];
+        const { r, rec } = this.recipeOp(op, [R[10]], (t) => f(R, t));
+        const names = { mean55: ['x̄', 'ȳ'], sdev55: ['sx', 'sy'], lr: ['a', 'b'] }[op];
+        r.trace.resultText = `${names[0]} = ${clamp(rec.result)}, ${names[1]} = ${clamp(rec.y)}`;
+        if (this.lift) this.push(clamp(rec.y));
+        else this.x = clamp(rec.y);
+        this.push(clamp(rec.result));
+        this.lift = true;
+        return r;
+      }
+      case 'yhat': {
+        this.terminate();
+        const x = this.x;
+        const { r } = this.recipeOp('yhat', [x], (t) => extra.yhat55(x, R, t));
+        this.unary(() => r.trace.result);
+        return r;
+      }
+      case 'hmsAdd':
+      case 'hmsSub': {
+        this.terminate();
+        const [x, y] = this.stack;
+        const { r } = this.recipeOp(op, [y, x], (t) => extra.hmsAddSub(y, x, op === 'hmsAdd' ? 1 : -1, t));
+        this.binary(() => r.trace.result);
+        return r;
+      }
+      case 'clr55':
+      case 'clrR': {
+        this.entry = null;
+        this.stack = [0, 0, 0, 0];
+        const [from, to] = op === 'clr55' ? [0, 9] : [10, 19];
+        for (let i = from; i <= to; i++) R[i] = 0;
+        this.lift = false;
+        return { busy: 0 };
+      }
+      default:
+        return this.exec(op);
+    }
+  }
+
   handlePending(op, id, shifted) {
     const p = this.pending;
     const d = DIGIT[id];
+    // HP-55: STO . 3 / RCL . 3 address the registers .0 … .9
+    if (this.model === 55 && (p.type === 'sto' || p.type === 'rcl') && id === 'dot' && !shifted && !p.dot && !p.op) {
+      p.dot = true;
+      return { busy: 0 };
+    }
+    if (this.model === 55 && (p.type === 'sto' || p.type === 'rcl') && op === 'sigma55' && !shifted) {
+      // STO Σ+ = Σ+,  RCL Σ+ recalls Σx and Σy
+      this.pending = null;
+      if (p.type === 'sto') return this.exec55('sigma55');
+      this.recall(this.regs[13]);
+      this.push(this.regs[11]);
+      return { busy: 60 };
+    }
     if (p.type === 'fix' || p.type === 'sci') {
       this.pending = null;
       if (d !== undefined && !shifted) {
@@ -215,18 +342,20 @@ export class HP45 {
       return { busy: 60 };
     }
     this.pending = null;
-    if (d === undefined || d === 0 || shifted) return { busy: 0 }; // invalid → ignore
+    const minReg = this.model === 55 ? 0 : 1;
+    if (d === undefined || d < minReg || shifted) return { busy: 0 }; // invalid → ignore
+    const idx = p.dot ? 10 + d : d;
     if (p.type === 'rcl') {
-      this.recall(this.regs[d]);
+      this.recall(this.regs[idx]);
       return { busy: 30 };
     }
-    // STO (with optional register arithmetic)
+    // STO (with optional register arithmetic – not for .0 … .9 on the HP-55)
     this.terminate();
     const x = this.x;
-    const r = this.regs[d];
+    const r = this.regs[idx];
     const v = { add: r + x, sub: r - x, mul: r * x, div: x === 0 ? NaN : r / x }[p.op] ?? x;
     if (Number.isNaN(v)) throw new CalcError('div0');
-    this.regs[d] = clamp(v);
+    this.regs[idx] = clamp(v);
     this.lift = true;
     return { busy: 30 };
   }
@@ -547,6 +676,7 @@ export class HP45 {
 
   /** Authentic quirk: trig functions use R9 as scratch register. */
   trashR9(x) {
+    if (this.model !== 45) return;
     this.regs[9] = clamp(x / 57.29577951);
   }
 

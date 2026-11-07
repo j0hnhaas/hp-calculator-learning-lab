@@ -19,7 +19,10 @@ const RECIPES = {
   cmin: (a, t) => extra.unitConst('cmin', a[0], t),
   kglb: (a, t) => extra.unitConst('kglb', a[0], t),
   ltrgal: (a, t) => extra.unitConst('ltrgal', a[0], t),
+  hmsAdd: (a, t) => extra.hmsAddSub(a[0], a[1], 1, t),
+  hmsSub: (a, t) => extra.hmsAddSub(a[0], a[1], -1, t),
 };
+for (const id of Object.keys(extra.CONV55)) RECIPES[id] = (a, t) => extra.convert(id, a[0], t);
 
 // ---------------------------------------------------------------- settings
 const store = {
@@ -39,7 +42,7 @@ const store = {
 };
 const settings = {
   sound: store.get('sound', false),
-  model: store.get('model', 45) === 35 ? 35 : 45,
+  model: [35, 45, 55].includes(store.get('model', 45)) ? store.get('model', 45) : 45,
 };
 setModelName(settings.model);
 
@@ -99,7 +102,7 @@ function renderStatus() {
       <span class="st-links"><button type="button" class="help-link" data-keyhelp>${t('keyhelp.toggle')}</button><button type="button" class="help-link" data-rpn>${t('rpn.open')}</button></span>
     </div>
     <div class="stackviz">${rows}${mem}</div>
-    <div class="modes"><span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span><span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>`;
+    <div class="modes">${calc.model === 55 ? `<span class="${calc.shift === 'f' ? 'on gold' : ''}">f</span><span class="${calc.shift === 'g' ? 'on bluechip' : ''}">g</span>` : `<span class="${(is35 ? calc.arc : calc.shift) ? 'on gold' : ''}">${t(is35 ? 'status.arc' : 'status.shift')}</span>`}<span class="on">${calc.angle}</span><span class="on">${mode}</span>${calc.pending ? `<span class="on">${calc.pending.type.toUpperCase()}${calc.pending.dot ? ' .' : ''}${calc.pending.op ? ' ' + ({ add: '+', sub: '−', mul: '×', div: '÷' })[calc.pending.op] : ''} _</span>` : ''}</div>`;
 }
 
 // ---------------------------------------------------------------- key help mode
@@ -131,7 +134,7 @@ function showInLab({ label, args, angle = 'DEG' }) {
   else if (label === 'pow' || label === 'pow35') result = fn.pow(args[0], args[1], steps);
   else if (RECIPES[label]) {
     const rec = RECIPES[label](args, steps);
-    lab.load({ label, args, angle, steps, result: rec.result, recipe: rec.recipe, noCost: label in { cmin: 1, kglb: 1, ltrgal: 1 } });
+    lab.load({ label, args, angle, steps, result: rec.result, recipe: rec.recipe, conv: rec.conv, noCost: label in { cmin: 1, kglb: 1, ltrgal: 1 } });
     setSheet(true);
     document.getElementById('lab').scrollIntoView({ block: 'start', behavior: 'smooth' });
     return;

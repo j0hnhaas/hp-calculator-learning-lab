@@ -18,12 +18,14 @@ export function buildCalculator(root, { onKey, onPower, onModel, model = 45 }) {
             <span class="power-track"><span class="power-knob"></span></span>
             <span class="power-lbl on">ON</span>
           </label>
-          <label class="model-switch" title="HP-35 / HP-45">
-            <span class="ms-lbl" data-m="35">35</span>
-            <input type="checkbox" class="model-input" aria-label="HP-35 / HP-45">
-            <span class="ms-track"><span class="ms-knob"></span></span>
-            <span class="ms-lbl" data-m="45">45</span>
-          </label>
+          <div class="model-switch" role="radiogroup" aria-label="HP-35 / HP-45 / HP-55">
+            <div class="ms-labels">
+              <button type="button" class="ms-lbl" role="radio" data-m="35">35</button>
+              <button type="button" class="ms-lbl" role="radio" data-m="45">45</button>
+              <button type="button" class="ms-lbl" role="radio" data-m="55">55</button>
+            </div>
+            <div class="ms-track" aria-hidden="true"><span class="ms-knob"></span></div>
+          </div>
         </div>
       </div>
       <div class="keyboard"></div>
@@ -52,8 +54,15 @@ export function buildCalculator(root, { onKey, onPower, onModel, model = 45 }) {
         btn.dataset.id = k.id;
         btn.innerHTML = `<span class="cap">${k.label}</span>`;
         btn.setAttribute('aria-label', k.label || 'shift');
-        if (k.gold) btn.title = `${k.label} / ${k.gold}`;
+        if (k.gold) btn.title = [k.label, k.gold, k.blue].filter(Boolean).join(' / ');
         cell.append(gold, btn);
+        if (m === 55) {
+          // HP-55: the blue g function is printed below the key
+          const blue = document.createElement('span');
+          blue.className = 'blue-label';
+          blue.textContent = k.blue ?? '';
+          cell.appendChild(blue);
+        }
         r.appendChild(cell);
         buttons.set(k.id, btn);
       }
@@ -61,12 +70,18 @@ export function buildCalculator(root, { onKey, onPower, onModel, model = 45 }) {
     });
   }
 
+  const MODELS = [35, 45, 55];
   function setModel(m) {
     calcEl.classList.toggle('m35', m === 35);
+    calcEl.classList.toggle('m55', m === 55);
     calcEl.setAttribute('aria-label', `HP-${m}`);
     root.querySelector('.foot-model').textContent = `HP-${m}`;
-    root.querySelector('.model-input').checked = m === 45;
-    root.querySelectorAll('.ms-lbl').forEach((l) => l.classList.toggle('on', +l.dataset.m === m));
+    root.querySelectorAll('.ms-lbl').forEach((l) => {
+      const on = +l.dataset.m === m;
+      l.classList.toggle('on', on);
+      l.setAttribute('aria-checked', on);
+    });
+    root.querySelector('.model-switch').dataset.pos = MODELS.indexOf(m);
     renderKeys(m);
   }
 
@@ -90,8 +105,17 @@ export function buildCalculator(root, { onKey, onPower, onModel, model = 45 }) {
 
   const power = root.querySelector('.power-input');
   power.addEventListener('change', () => onPower(power.checked));
-  const modelInput = root.querySelector('.model-input');
-  modelInput.addEventListener('change', () => onModel(modelInput.checked ? 45 : 35));
+  // the 3-position slide switch: tap a number, or tap the track where the knob should go
+  const sw = root.querySelector('.model-switch');
+  sw.querySelector('.ms-labels').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-m]');
+    if (b) onModel(+b.dataset.m);
+  });
+  sw.querySelector('.ms-track').addEventListener('click', (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const pos = Math.max(0, Math.min(2, Math.floor(((e.clientX - r.left) / r.width) * 3)));
+    onModel(MODELS[pos]);
+  });
 
   const display = new LedDisplay(root.querySelector('.display-glass'));
   setModel(model);

@@ -155,6 +155,8 @@ const de = {
   'status.arc': 'ARC',
   'status.auto': 'AUTO',
   'status.mem': 'S',
+  'keyhelp.blue': 'Mit der blauen g-Taste davor',
+  'keyhelp.f': 'Mit der goldenen f-Taste davor',
   'power.on': 'ON',
   'power.off': 'OFF',
   'install': 'Installieren',
@@ -379,6 +381,8 @@ const en = {
   'status.arc': 'ARC',
   'status.auto': 'AUTO',
   'status.mem': 'S',
+  'keyhelp.blue': 'With the blue g key first',
+  'keyhelp.f': 'With the gold f key first',
   'power.on': 'ON',
   'power.off': 'OFF',
   'install': 'Install',
@@ -475,7 +479,7 @@ export const localize = (str) => withModel(str);
 /** All texts mention "HP-45"; when the HP-35 is selected they say "HP-35". */
 export function setModelName(m) {
   modelName = `HP-${m}`;
-  modelYear = m === 35 ? '1972' : '1973';
+  modelYear = { 35: '1972', 45: '1973', 55: '1975' }[m] ?? '1973';
   listeners.forEach((f) => f(lang));
 }
 const listeners = new Set();
