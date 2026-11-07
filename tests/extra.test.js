@@ -66,3 +66,18 @@ test('conversion keys: constant, derivation of the gallon, story', async () => {
     assert.ok(st[2].text.includes('271,78') || st[2].text.includes('271.78'), st[2].text);
   }
 });
+
+test('HP-55 conversion and H.MS stories build', async () => {
+  const { buildStory } = await import('../js/ui/story.js');
+  const ex = await import('../js/engine/extra.js');
+  for (const id of Object.keys(ex.CONV55)) {
+    const t = [];
+    const r = ex.convert(id, 10, t);
+    const st = buildStory({ label: id, args: [10], steps: t, result: r.result, recipe: r.recipe, conv: r.conv }, 'de');
+    assert.ok(st.length >= 3 && st[0].text.includes('10'), id);
+  }
+  const t = [];
+  const r = ex.hmsAddSub(1.3, 2.45, 1, t);
+  assert.equal(r.result, 4.15);
+  assert.ok(buildStory({ label: 'hmsAdd', args: [1.3, 2.45], steps: t, result: r.result, recipe: r.recipe }, 'en').length > 3);
+});

@@ -36,7 +36,59 @@ const INTRO = {
   },
 };
 
+const INTRO55 = {
+  sigma55: {
+    de: (a, l) => `Σ+ beim HP-55 führt für Wertepaare (x, y) Buch – sechs laufende Summen in den [[register|Registern]] R.0–R.5: n, Σx, Σx², Σy, Σy² und Σxy. Daraus entstehen später Mittelwerte, Streuung und die Ausgleichsgerade. Neues Paar: x = ${nf(a[0], l)}, y = ${nf(a[1], l)}.`,
+    en: (a, l) => `Σ+ on the HP-55 keeps the books for pairs (x, y) – six running sums in the [[register|registers]] R.0–R.5: n, Σx, Σx², Σy, Σy² and Σxy. Means, deviation and the best-fit line all come from these later. New pair: x = ${nf(a[0], l)}, y = ${nf(a[1], l)}.`,
+  },
+  sigmaMinus55: {
+    de: (a, l) => `Σ− nimmt das Paar x = ${nf(a[0], l)}, y = ${nf(a[1], l)} wieder aus den sechs Summen heraus – dieselben Schritte, nur abgezogen.`,
+    en: (a, l) => `Σ− takes the pair x = ${nf(a[0], l)}, y = ${nf(a[1], l)} back out of the six sums – the same steps, just subtracted.`,
+  },
+  mean55: {
+    de: () => 'Mittelwerte sind nur zwei Divisionen: x̄ = Σx ÷ n und ȳ = Σy ÷ n. x̄ landet in X, ȳ in Y – mit x⇄y holst du es nach vorne.',
+    en: () => 'Means are just two divisions: x̄ = Σx ÷ n and ȳ = Σy ÷ n. x̄ goes to X, ȳ to Y – x⇄y brings it to the front.',
+  },
+  sdev55: {
+    de: () => 'Die Streuung s sagt, wie weit die Werte typischerweise vom Mittelwert entfernt liegen. Rezept: n·Σx² − (Σx)², geteilt durch n·(n−1), daraus die Wurzel – einmal für x, einmal für y.',
+    en: () => 'The deviation s tells how far the values typically lie from the mean. Recipe: n·Σx² − (Σx)², divided by n·(n−1), then the square root – once for x, once for y.',
+  },
+  lr: {
+    de: () => 'L.R. sucht die Gerade y = a + b·x, die am besten durch alle Punkte passt (Methode der kleinsten Quadrate). Steigung b = (n·Σxy − Σx·Σy) ÷ (n·Σx² − (Σx)²), danach Achsenabschnitt a = (Σy − b·Σx) ÷ n. Ein Dutzend Grundrechnungen – mehr nicht.',
+    en: () => 'L.R. finds the line y = a + b·x that fits all points best (least squares). Slope b = (n·Σxy − Σx·Σy) ÷ (n·Σx² − (Σx)²), then intercept a = (Σy − b·Σx) ÷ n. A dozen basic operations – nothing more.',
+  },
+  yhat: {
+    de: (a, l) => `ŷ schätzt, welches y zu x = ${nf(a[0], l)} passt: Zuerst wird die Gerade wie bei L.R. berechnet, dann a + b·x.`,
+    en: (a, l) => `ŷ estimates which y belongs to x = ${nf(a[0], l)}: first the line is computed as with L.R., then a + b·x.`,
+  },
+  hmsAdd: {
+    de: (a, l) => `Zeiten in h.mmss kann man nicht einfach addieren – 1.30 + 2.45 wäre sonst 4.75 statt 4 h 15 min. Rezept: beide in Dezimalstunden umwandeln, addieren, zurückverwandeln. Hier ${nf(a[0], l)} + ${nf(a[1], l)}.`,
+    en: (a, l) => `Times in h.mmss can't simply be added – 1.30 + 2.45 would give 4.75 instead of 4 h 15 min. Recipe: convert both to decimal hours, add, convert back. Here ${nf(a[0], l)} + ${nf(a[1], l)}.`,
+  },
+  hmsSub: {
+    de: (a, l) => `Zeitspanne in h.mmss: beide Zeiten in Dezimalstunden umwandeln, abziehen, zurückverwandeln. Hier ${nf(a[0], l)} − ${nf(a[1], l)}.`,
+    en: (a, l) => `Time difference in h.mmss: convert both to decimal hours, subtract, convert back. Here ${nf(a[0], l)} − ${nf(a[1], l)}.`,
+  },
+};
+Object.assign(INTRO, INTRO55);
+
+/** conversion keys of the HP-55: one real multiplication or division (two for temperatures) */
+function convIntro(tr, lang) {
+  const c = tr.conv;
+  const de = lang === 'de';
+  const x = nf(tr.args[0], lang);
+  if (c.op === 'f2c') return de ? `${x} °F in °C: 32 abziehen, dann durch 1,8 teilen. Anders als die Umrechnungstasten des HP-45 rechnet der HP-55 die Umrechnung selbst aus.` : `${x} °F to °C: subtract 32, then divide by 1.8. Unlike the conversion keys of the HP-45, the HP-55 does the conversion itself.`;
+  if (c.op === 'c2f') return de ? `${x} °C in °F: mal 1,8, dann 32 dazu.` : `${x} °C to °F: times 1.8, then add 32.`;
+  const k = nf(c.k, lang, 10);
+  const big = c.op === 'mul' ? c.to : c.from;
+  const small = c.op === 'mul' ? c.from : c.to;
+  return de
+    ? `${x} ${c.from} in ${c.to}: 1 ${small} = ${k} ${big}, also ${c.op === 'mul' ? 'mal' : 'geteilt durch'} ${k}. Anders als beim HP-45 legt die Taste nicht nur die Konstante hin, sondern rechnet gleich selbst.`
+    : `${x} ${c.from} to ${c.to}: 1 ${small} = ${k} ${big}, so ${c.op === 'mul' ? 'times' : 'divided by'} ${k}. Unlike the HP-45, the key doesn't just put down the constant – it does the calculation itself.`;
+}
+
 const REG = { 5: 'n', 6: 'Σx²', 7: 'Σx', 8: 'Σy' };
+const REG55 = ['n', 'Σx', 'x²', 'Σx²', 'Σy', 'y²', 'Σy²', 'xy', 'Σxy'];
 
 function itemText(it, k, tr, lang) {
   const de = lang === 'de';
@@ -47,6 +99,7 @@ function itemText(it, k, tr, lang) {
   if (it.op === 'split') return de ? `Zerlegen: ${f(it.a)} → ${it.b} h, ${it.c} min, ${nf(it.d, lang, 6)} s` : `Splitting: ${f(it.a)} → ${it.b} h, ${it.c} min, ${nf(it.d, lang, 6)} s`;
   if (it.op === 'sqrt') return `√${f(it.a)} = <b>${f(it.r)}</b>`;
   let s = `${f(it.a)} ${SYM[it.op]} ${f(it.b)} = <b>${f(it.r)}</b>`;
+  if (tr.label === 'sigma55' || tr.label === 'sigmaMinus55') return `${REG55[k]}: ${s}`;
   if (tr.label === 'sigma' || tr.label === 'sigmaMinus') {
     const reg = [5, null, 6, 7, 8][k];
     if (reg) s = `${REG[reg]}: ${s}`;
@@ -69,7 +122,7 @@ export function recipeStory(tr, lang) {
   const items = tr.recipe;
   const out = [{
     title: de ? 'Das Rezept' : 'The recipe',
-    text: (INTRO[tr.label]?.[lang] ?? INTRO[tr.label]?.en ?? (() => ''))(tr.args, lang),
+    text: tr.conv ? convIntro(tr, lang) : (INTRO[tr.label]?.[lang] ?? INTRO[tr.label]?.en ?? (() => ''))(tr.args, lang),
     viz: { kind: 'arith', idx: 0 },
   }];
   const kindOf = (it) => (it.op === 'sqrt' ? 'sqrt' : 'arith');

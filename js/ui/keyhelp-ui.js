@@ -11,20 +11,21 @@ function textOf(entry, model) {
   return (model === 35 && entry[`${lang}35`]) || entry[lang] || entry.en;
 }
 
-function section(entry, label, gold, model) {
+function section(entry, label, gold, model, blue = false) {
   if (!entry) return '';
   const tx = textOf(entry, model);
   const st = entry.st
     ? `<div class="mini-stacks kh-stacks">${stackPic(t('keyhelp.before'), entry.st[0])}<span class="kh-arrow">→</span>${stackPic(t('keyhelp.after'), entry.st[1])}</div>`
     : '';
   return `
-    <section class="kh${gold ? ' gold' : ''}">
-      ${gold ? `<span class="g-label">${t('keyhelp.gold')}</span>` : ''}
+    <section class="kh${gold ? ' gold' : ''}${blue ? ' blue' : ''}">
+      ${gold ? `<span class="g-label">${t(model === 55 ? 'keyhelp.f' : 'keyhelp.gold')}</span>` : ''}
+      ${blue ? `<span class="g-label b-label">${t('keyhelp.blue')}</span>` : ''}
       <h3 class="kh-name">${tx.n}</h3>
       <p>${rich(tx.d)}</p>
       ${entry.ex ? `<p class="seq">${keys(entry.ex)}${tx.r ? ` <span class="res">→ ${tx.r}</span>` : ''}</p>` : ''}
       ${st}
-      ${entry.lab ? `<button type="button" class="pill primary kh-lab" data-kh-lab="${gold ? 'gold' : 'main'}">${t('keyhelp.lab')}</button>` : ''}
+      ${entry.lab ? `<button type="button" class="pill primary kh-lab" data-kh-lab="${gold ? 'gold' : blue ? 'blue' : 'main'}">${t('keyhelp.lab')}</button>` : ''}
     </section>`;
 }
 
@@ -37,13 +38,14 @@ export function openKeyHelp(keyId, model, onLab) {
   if (!key) return;
   const main = KEYHELP[helpIdFor(keyId)];
   const gold = key.gid ? KEYHELP[key.gid] : null;
+  const blue = key.bid ? KEYHELP[key.bid] : null;
   const body = openSheet({
     title: t('keyhelp.title').replace('{k}', key.label || (model === 45 ? '■' : '')),
     className: 'sheet-key',
-    html: section(main, key.label, false, model) + (gold ? section(gold, key.gold, true, model) : ''),
+    html: section(main, key.label, false, model) + (gold ? section(gold, key.gold, true, model) : '') + (blue ? section(blue, key.blue, false, model, true) : ''),
   });
   body.querySelectorAll('[data-kh-lab]').forEach((b) => b.addEventListener('click', () => {
-    const entry = b.dataset.khLab === 'gold' ? gold : main;
+    const entry = { gold, blue }[b.dataset.khLab] ?? main;
     closeSheet();
     onLab(entry.lab);
   }));

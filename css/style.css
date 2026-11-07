@@ -603,3 +603,34 @@ body.keyhelp-on .key.gold { outline-color: #fff8; }
 }
 
 .lab-fab { white-space: nowrap; }
+
+/* ---------------------------------------------------------------- 3-position model switch, HP-55 */
+.model-switch { display: inline-flex; flex-direction: column; align-items: stretch; gap: .12em; }
+.ms-labels { display: flex; justify-content: space-between; gap: .3em; }
+.ms-labels .ms-lbl {
+  appearance: none; border: 0; background: none; padding: 0 .1em; cursor: pointer;
+  font: 700 .7em/1 var(--sans); letter-spacing: .04em; color: #2b2b2b; text-shadow: 0 1px 0 #fff6; opacity: .4;
+}
+.ms-labels .ms-lbl.on { opacity: 1; }
+.ms-labels .ms-lbl:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.model-switch .ms-track { width: 4.2em; height: .95em; cursor: pointer; }
+.model-switch .ms-knob { width: 1.3em; height: .71em; top: .12em; left: .12em; }
+.model-switch[data-pos="1"] .ms-knob { left: 1.45em; }
+.model-switch[data-pos="2"] .ms-knob { left: 2.78em; }
+.key.skyblue {
+  background: linear-gradient(180deg, #7cc0ef 0%, #4c9fd8 50%, #3584bd 100%);
+  color: #08243a;
+  box-shadow: 0 .16em 0 #1b4a6c, 0 .22em .3em #000c, inset 0 1px 0 #fff8;
+}
+.key.skyblue .cap, .key.gold .cap { font-weight: 700; font-size: .8em; }
+.blue-label {
+  height: 1.75em; box-sizing: border-box; display: flex; align-items: flex-start; justify-content: center;
+  font: 600 .5em/1.1 var(--sans); color: #6cb6ea; white-space: nowrap; padding-top: .5em;
+}
+.calc.m55 .keyboard { gap: 0; padding-top: .3em; }
+.calc.m55 .gold-label { height: 1.55em; box-sizing: border-box; line-height: 1.1; padding-bottom: .3em; }
+.calc.m55 .key { height: 1.6em; }
+.calc.m55 .krow.lower .key { height: 1.75em; }
+.calc.m55 .krow.lower:first-of-type { margin-top: 0; }
+.status .modes span.bluechip { color: #08243a; background: #6cb6ea; border-color: #6cb6ea; }
+.kh.blue .kh-name, .b-label { color: #6cb6ea; }

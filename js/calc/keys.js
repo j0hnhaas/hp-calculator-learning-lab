@@ -115,6 +115,63 @@ export const KEY_ROWS_35 = [
   ...lower({ id: 'pi', label: 'π', style: 'light', kb: ['p'] }),
 ];
 
-export const KEY_LAYOUTS = { 35: KEY_ROWS_35, 45: KEY_ROWS };
+// HP-55 (1975): two prefix keys – f (gold, legend above the key) and
+// g (blue, legend below the key). Programming keys (R/S, SST, BST, GTO) and
+// the TIMER/PRGM/RUN switch follow in part 2.
+export const KEY_ROWS_55 = [
+  [
+    { id: 'sigma55', label: 'Σ+', gold: 'Σ−', gid: 'sigmaMinus55' },
+    { id: 'pow', label: 'yˣ', gold: 'SIN', gid: 'sin', blue: 'SIN⁻¹', bid: 'asin', kb: ['s'] },
+    { id: 'inv', label: '1/x', gold: 'COS', gid: 'cos', blue: 'COS⁻¹', bid: 'acos', kb: ['c'] },
+    { id: 'pct', label: '%', gold: 'TAN', gid: 'tan', blue: 'TAN⁻¹', bid: 'atan', kb: ['t', '%'] },
+    { id: 'bst', label: 'BST' },
+  ],
+  [
+    { id: 'yhat', label: 'ŷ', gold: 'L.R.', gid: 'lr' },
+    { id: 'swap', label: 'x⇄y', gold: 'ln', gid: 'ln', blue: 'eˣ', bid: 'exp', kb: ['x'] },
+    { id: 'rdn', label: 'R↓', gold: 'log', gid: 'log', blue: '10ˣ', bid: 'exp10', kb: ['r'] },
+    { id: 'fix', label: 'FIX', gold: 'SCI', gid: 'sci' },
+    { id: 'sst', label: 'SST' },
+  ],
+  [
+    { id: 'fkey', label: 'f', style: 'gold', kb: ['f', 'F'] },
+    { id: 'gkey', label: 'g', style: 'skyblue', kb: ['g', 'G'] },
+    { id: 'sto', label: 'STO', gold: 'x̄', gid: 'mean55', blue: 's', bid: 'sdev55' },
+    { id: 'rcl', label: 'RCL', gold: 'LAST x', gid: 'lastx' },
+    { id: 'gto', label: 'GTO', gold: 'x≤y', gid: 'xle', blue: 'x=y', bid: 'xeq' },
+  ],
+  [
+    { id: 'enter', label: 'ENTER ↑', gold: 'H.MS+', gid: 'hmsAdd', blue: 'H.MS−', bid: 'hmsSub', wide: true, style: 'blue', kb: ['Enter'] },
+    { id: 'chs', label: 'CHS', gold: '√x', gid: 'sqrt', blue: 'x²', bid: 'sq', style: 'blue', kb: ['n', '_'] },
+    { id: 'eex', label: 'EEX', gold: 'n!', gid: 'fact', style: 'blue', kb: ['e', 'E'] },
+    { id: 'clx', label: 'CLx', gold: 'CLR', gid: 'clr55', blue: 'CL.R', bid: 'clrR', style: 'blue', kb: ['Backspace', 'Delete', 'Escape'] },
+  ],
+  [
+    { id: 'sub', label: '−', gold: 'DEG', gid: 'deg', style: 'blue', kb: ['-'] },
+    { id: 'd7', label: '7', gold: 'in→', gid: 'in2mm', blue: '←mm', bid: 'mm2in', style: 'light', kb: ['7'] },
+    { id: 'd8', label: '8', gold: 'ft→', gid: 'ft2m', blue: '←m', bid: 'm2ft', style: 'light', kb: ['8'] },
+    { id: 'd9', label: '9', gold: 'gal→', gid: 'gal2l', blue: '←l', bid: 'l2gal', style: 'light', kb: ['9'] },
+  ],
+  [
+    { id: 'add', label: '+', gold: 'RAD', gid: 'rad', style: 'blue', kb: ['+'] },
+    { id: 'd4', label: '4', gold: 'lbm→', gid: 'lbm2kg', blue: '←kg', bid: 'kg2lbm', style: 'light', kb: ['4'] },
+    { id: 'd5', label: '5', gold: 'lbf→', gid: 'lbf2n', blue: '←N', bid: 'n2lbf', style: 'light', kb: ['5'] },
+    { id: 'd6', label: '6', gold: '°F→', gid: 'f2c', blue: '←°C', bid: 'c2f', style: 'light', kb: ['6'] },
+  ],
+  [
+    { id: 'mul', label: '×', gold: 'GRD', gid: 'grd', style: 'blue', kb: ['*'] },
+    { id: 'd1', label: '1', gold: 'H→', gid: 'toDMS', blue: '←H.MS', bid: 'fromDMS', style: 'light', kb: ['1'] },
+    { id: 'd2', label: '2', gold: 'D→', gid: 'd2r', blue: '←R', bid: 'r2d', style: 'light', kb: ['2'] },
+    { id: 'd3', label: '3', gold: 'Btu→', gid: 'btu2j', blue: '←J', bid: 'j2btu', style: 'light', kb: ['3'] },
+  ],
+  [
+    { id: 'div', label: '÷', style: 'blue', kb: ['/'] },
+    { id: 'd0', label: '0', gold: 'R→', gid: 'toP', blue: '←P', bid: 'toR', style: 'light', kb: ['0'] },
+    { id: 'dot', label: '•', gold: 'π', gid: 'pi', style: 'light', kb: ['.', ','] },
+    { id: 'rs', label: 'R/S', style: 'light' },
+  ],
+];
+
+export const KEY_LAYOUTS = { 35: KEY_ROWS_35, 45: KEY_ROWS, 55: KEY_ROWS_55 };
 
 export const ALL_KEYS = KEY_ROWS.flat();

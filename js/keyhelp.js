@@ -310,6 +310,189 @@ export const KEYHELP = {
     de: { n: 'ltr/gal – Gallonen', d: 'Legt 3,785 auf den Stapel (Liter pro US-Gallone).', r: '37,85' },
     en: { n: 'ltr/gal – gallons', d: 'Puts 3.785 on the stack (litres per US gallon).', r: '37.85' },
   },
+  // ---------------------------------------------------------------- HP-55
+  fkey: {
+    ex: "30 f SIN",
+    de: { n: "f – goldene Umschalttaste", d: "Der HP-55 hat zwei Umschalttasten. Nach f gilt für die nächste Taste die goldene Beschriftung über der Taste. Ein zweites f schaltet wieder aus.", r: "0,5" },
+    en: { n: "f – gold shift key", d: "The HP-55 has two shift keys. After f the next key does what is printed in gold above it. Pressing f again cancels.", r: "0.5" },
+  },
+  gkey: {
+    ex: "0.5 g SIN⁻¹",
+    de: { n: "g – blaue Umschalttaste", d: "Nach g gilt für die nächste Taste die blaue Beschriftung unter der Taste – meist die Umkehrfunktion der goldenen (z. B. SIN⁻¹ statt SIN).", r: "30" },
+    en: { n: "g – blue shift key", d: "After g the next key does what is printed in blue below it – usually the inverse of the gold function (e.g. SIN⁻¹ instead of SIN).", r: "30" },
+  },
+  sigma55: {
+    ex: "2 ENTER↑ 1 Σ+",
+    de: { n: "Σ+ – Wertepaar erfassen", d: "Nimmt x und y als Paar in die Statistik auf und zählt n mit. Die sechs laufenden Summen stehen in den [[register|Registern]] R.0–R.5 (n, Σx, Σx², Σy, Σy², Σxy). Für einzelne Werte reicht x – y ist dann einfach mit dabei.", r: "n = 1" },
+    en: { n: "Σ+ – add a data pair", d: "Adds x and y as a pair to the statistics and counts n. The six running sums live in the [[register|registers]] R.0–R.5 (n, Σx, Σx², Σy, Σy², Σxy). For single values just use x.", r: "n = 1" },
+  },
+  sigmaMinus55: {
+    ex: "2 ENTER↑ 1 f Σ−",
+    de: { n: "Σ− – Paar wieder entfernen", d: "Nimmt ein falsch erfasstes Paar (y, x) wieder aus allen sechs Summen heraus." },
+    en: { n: "Σ− – remove a pair", d: "Removes a wrongly entered pair (y, x) from all six sums again." },
+  },
+  mean55: {
+    ex: "f x̄",
+    de: { n: "x̄ – Mittelwerte", d: "Berechnet aus den Summen den Mittelwert von x (nach X) und von y (nach Y)." },
+    en: { n: "x̄ – means", d: "Computes the mean of x (into X) and of y (into Y) from the sums." },
+  },
+  sdev55: {
+    ex: "g s",
+    de: { n: "s – Standardabweichung", d: "Wie weit streuen die Werte um den Mittelwert? sx kommt nach X, sy nach Y. Braucht mindestens zwei Paare." },
+    en: { n: "s – standard deviation", d: "How widely do the values spread around the mean? sx goes to X, sy to Y. Needs at least two pairs." },
+  },
+  lr: {
+    ex: "f L.R.",
+    de: { n: "L.R. – Ausgleichsgerade", d: "Lineare Regression: legt die Gerade y = a + b·x so durch die erfassten Punkte, dass die Abweichungen möglichst klein sind. Achsenabschnitt a kommt nach X, Steigung b nach Y." },
+    en: { n: "L.R. – linear regression", d: "Fits the line y = a + b·x through the entered points with the smallest possible deviations. Intercept a goes to X, slope b to Y." },
+  },
+  yhat: {
+    ex: "5 ŷ",
+    de: { n: "ŷ – Schätzwert", d: "Setzt x in die Ausgleichsgerade ein und liefert das passende y. So kann man Messreihen fortschreiben." },
+    en: { n: "ŷ – estimate", d: "Puts x into the regression line and returns the matching y. That lets you extend a series of measurements." },
+  },
+  hmsAdd: {
+    lab: {label: "hmsAdd", args: [1.3, 2.45]},
+    ex: "1.30 ENTER↑ 2.45 f H.MS+",
+    de: { n: "H.MS+ – Zeiten addieren", d: "Addiert zwei Zeiten in der Schreibweise h.mmss richtig: 1 h 30 min + 2 h 45 min = 4 h 15 min.", r: "4,15" },
+    en: { n: "H.MS+ – add times", d: "Adds two times written as h.mmss correctly: 1 h 30 min + 2 h 45 min = 4 h 15 min.", r: "4.15" },
+  },
+  hmsSub: {
+    lab: {label: "hmsSub", args: [4.15, 1.3]},
+    ex: "4.15 ENTER↑ 1.30 g H.MS−",
+    de: { n: "H.MS− – Zeiten abziehen", d: "Zieht zwei Zeiten in h.mmss voneinander ab – z. B. für Fahrzeiten.", r: "2,45" },
+    en: { n: "H.MS− – subtract times", d: "Subtracts two times in h.mmss – e.g. for travel times.", r: "2.45" },
+  },
+  clr55: {
+    ex: "f CLEAR",
+    de: { n: "CLEAR – alles löschen", d: "Löscht den Stapel und die Speicher R0–R9." },
+    en: { n: "CLEAR – clear all", d: "Clears the stack and memories R0–R9." },
+  },
+  clrR: {
+    ex: "g CL.R",
+    de: { n: "CL.R – Statistikspeicher löschen", d: "Löscht den Stapel und die Speicher R.0–R.9 – vor einer neuen Statistik." },
+    en: { n: "CL.R – clear statistics registers", d: "Clears the stack and memories R.0–R.9 – before a new set of statistics." },
+  },
+  rs: {
+    de: { n: "R/S – Programm starten/anhalten", d: "Startet oder stoppt ein gespeichertes Programm. Programmieren kommt in einem späteren Teil dieser Simulation." },
+    en: { n: "R/S – run/stop", d: "Starts or stops a stored program. Programming will come in a later part of this simulation." },
+  },
+  sst: {
+    de: { n: "SST – Einzelschritt", d: "Führt ein Programm Schritt für Schritt aus. Kommt mit der Programmierung." },
+    en: { n: "SST – single step", d: "Runs a program one step at a time. Comes with programming." },
+  },
+  bst: {
+    de: { n: "BST – Schritt zurück", d: "Geht im Programm einen Schritt zurück. Außerhalb von Programmen bricht BST eine angefangene Eingabe wie STO ab." },
+    en: { n: "BST – back step", d: "Steps back one program line. Outside programs BST cancels a started entry such as STO." },
+  },
+  gto: {
+    de: { n: "GTO – springen", d: "Springt zu einer Programmzeile. Kommt mit der Programmierung." },
+    en: { n: "GTO – go to", d: "Jumps to a program line. Comes with programming." },
+  },
+  xle: {
+    de: { n: "x≤y – Vergleich", d: "Programmtest: Ist x ≤ y, geht es normal weiter, sonst wird gesprungen. Kommt mit der Programmierung." },
+    en: { n: "x≤y – test", d: "Program test: if x ≤ y the program continues, otherwise it jumps. Comes with programming." },
+  },
+  xeq: {
+    de: { n: "x=y – Vergleich", d: "Programmtest auf Gleichheit. Kommt mit der Programmierung." },
+    en: { n: "x=y – test", d: "Program test for equality. Comes with programming." },
+  },
+  in2mm: {
+    lab: {label: "in2mm", args: [10]},
+    ex: "10 f in→mm",
+    de: { n: "in→mm – Zoll in mm", d: "Rechnet X von Zoll in mm um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "254" },
+    en: { n: "in→mm – inches to mm", d: "Converts X from inches to mm – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "254" },
+  },
+  mm2in: {
+    lab: {label: "mm2in", args: [254]},
+    ex: "254 g mm→in",
+    de: { n: "mm→in – mm in Zoll", d: "Rechnet X von mm in Zoll um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "10" },
+    en: { n: "mm→in – mm to inches", d: "Converts X from mm to inches – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "10" },
+  },
+  ft2m: {
+    lab: {label: "ft2m", args: [10]},
+    ex: "10 f ft→m",
+    de: { n: "ft→m – Fuß in Meter", d: "Rechnet X von Fuß in Meter um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "3,048" },
+    en: { n: "ft→m – feet to metres", d: "Converts X from feet to metres – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "3.048" },
+  },
+  m2ft: {
+    lab: {label: "m2ft", args: [3.048]},
+    ex: "3.048 g m→ft",
+    de: { n: "m→ft – Meter in Fuß", d: "Rechnet X von Meter in Fuß um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "10" },
+    en: { n: "m→ft – metres to feet", d: "Converts X from metres to feet – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "10" },
+  },
+  gal2l: {
+    lab: {label: "gal2l", args: [10]},
+    ex: "10 f gal→l",
+    de: { n: "gal→l – US-Gallonen in Liter", d: "Rechnet X von US-Gallonen in Liter um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "37,85411784" },
+    en: { n: "gal→l – US gallons to litres", d: "Converts X from US gallons to litres – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "37.85411784" },
+  },
+  l2gal: {
+    lab: {label: "l2gal", args: [10]},
+    ex: "10 g l→gal",
+    de: { n: "l→gal – Liter in US-Gallonen", d: "Rechnet X von Liter in US-Gallonen um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "2,641720524" },
+    en: { n: "l→gal – litres to US gallons", d: "Converts X from litres to US gallons – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "2.641720524" },
+  },
+  lbm2kg: {
+    lab: {label: "lbm2kg", args: [10]},
+    ex: "10 f lbm→kg",
+    de: { n: "lbm→kg – Pfund in kg", d: "Rechnet X von Pfund in kg um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "4,5359237" },
+    en: { n: "lbm→kg – pounds to kg", d: "Converts X from pounds to kg – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "4.5359237" },
+  },
+  kg2lbm: {
+    lab: {label: "kg2lbm", args: [10]},
+    ex: "10 g kg→lbm",
+    de: { n: "kg→lbm – kg in Pfund", d: "Rechnet X von kg in Pfund um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "22,04622622" },
+    en: { n: "kg→lbm – kg to pounds", d: "Converts X from kg to pounds – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "22.04622622" },
+  },
+  lbf2n: {
+    lab: {label: "lbf2n", args: [10]},
+    ex: "10 f lbf→N",
+    de: { n: "lbf→N – Pfund-Kraft in Newton", d: "Rechnet X von Pfund-Kraft in Newton um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "44,48221615" },
+    en: { n: "lbf→N – pounds-force to newtons", d: "Converts X from pounds-force to newtons – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "44.48221615" },
+  },
+  n2lbf: {
+    lab: {label: "n2lbf", args: [10]},
+    ex: "10 g N→lbf",
+    de: { n: "N→lbf – Newton in Pfund-Kraft", d: "Rechnet X von Newton in Pfund-Kraft um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "2,248089431" },
+    en: { n: "N→lbf – newtons to pounds-force", d: "Converts X from newtons to pounds-force – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "2.248089431" },
+  },
+  btu2j: {
+    lab: {label: "btu2j", args: [1]},
+    ex: "1 f Btu→J",
+    de: { n: "Btu→J – Btu in Joule", d: "Rechnet X von Btu in Joule um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "1055,055853" },
+    en: { n: "Btu→J – Btu to joules", d: "Converts X from Btu to joules – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "1055.055853" },
+  },
+  j2btu: {
+    lab: {label: "j2btu", args: [1000]},
+    ex: "1000 g J→Btu",
+    de: { n: "J→Btu – Joule in Btu", d: "Rechnet X von Joule in Btu um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "0,94781712" },
+    en: { n: "J→Btu – joules to Btu", d: "Converts X from joules to Btu – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "0.94781712" },
+  },
+  f2c: {
+    lab: {label: "f2c", args: [212]},
+    ex: "212 f °F→°C",
+    de: { n: "°F→°C – °F in °C", d: "Rechnet X von °F in °C um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "100" },
+    en: { n: "°F→°C – °F to °C", d: "Converts X from °F to °C – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "100" },
+  },
+  c2f: {
+    lab: {label: "c2f", args: [100]},
+    ex: "100 g °C→°F",
+    de: { n: "°C→°F – °C in °F", d: "Rechnet X von °C in °F um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "212" },
+    en: { n: "°C→°F – °C to °F", d: "Converts X from °C to °F – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "212" },
+  },
+  d2r: {
+    lab: {label: "d2r", args: [180]},
+    ex: "180 f →RAD",
+    de: { n: "→RAD – Grad in Bogenmaß", d: "Rechnet X von Grad in Bogenmaß um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "3,141592654" },
+    en: { n: "→RAD – degrees to radians", d: "Converts X from degrees to radians – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "3.141592654" },
+  },
+  r2d: {
+    lab: {label: "r2d", args: [1]},
+    ex: "1 g →DEG",
+    de: { n: "→DEG – Bogenmaß in Grad", d: "Rechnet X von Bogenmaß in Grad um – der HP-55 rechnet dabei selbst (beim HP-45 legten die Umrechnungstasten nur eine Konstante hin).", r: "57,29577951" },
+    en: { n: "→DEG – radians to degrees", d: "Converts X from radians to degrees – the HP-55 does the calculation itself (the HP-45 keys only put down a constant).", r: "57.29577951" },
+  },
 };
 
 /** which help entry belongs to a key id (digits share one entry) */

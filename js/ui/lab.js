@@ -23,6 +23,9 @@ const DECADE_COLORS = ['#e8b04a', '#e0603c', '#4fa3d9', '#6cc28a', '#b48ae0', '#
 const OP_LABEL = {
   sin: 'SIN', cos: 'COS', tan: 'TAN', asin: 'SIN⁻¹', acos: 'COS⁻¹', atan: 'TAN⁻¹',
   ln: 'ln', log: 'log', exp: 'eˣ', exp10: '10ˣ', sqrt: '√x', pow: 'yˣ', pow35: 'xʸ', add: '+', sub: '−', mul: '×', div: '÷', inv: '1/x', sq: 'x²', pct: '%', cmin: 'cm/in', kglb: 'kg/lb', ltrgal: 'ltr/gal', fact: 'n!', dpct: 'Δ%', toDMS: '→D.MS', fromDMS: 'D.MS→', sigma: 'Σ+', sigmaMinus: 'Σ−', mean: 'x̄, s', toP: '→P', toR: '→R',
+  sigma55: 'Σ+', sigmaMinus55: 'Σ−', mean55: 'x̄', sdev55: 's', lr: 'L.R.', yhat: 'ŷ', hmsAdd: 'H.MS+', hmsSub: 'H.MS−',
+  in2mm: 'in→mm', mm2in: 'mm→in', ft2m: 'ft→m', m2ft: 'm→ft', gal2l: 'gal→l', l2gal: 'l→gal', lbm2kg: 'lbm→kg', kg2lbm: 'kg→lbm',
+  lbf2n: 'lbf→N', n2lbf: 'N→lbf', btu2j: 'Btu→J', j2btu: 'J→Btu', f2c: '°F→°C', c2f: '°C→°F', d2r: '°→rad', r2d: 'rad→°',
 };
 
 const EXAMPLES = [
@@ -51,6 +54,11 @@ function opText(tr, args, unit) {
   if (tr.label === 'dpct') return `Δ% ${y} → ${x} = ${res}`;
   if (tr.label === 'sigma' || tr.label === 'sigmaMinus') return `${OP_LABEL[tr.label]} x = ${y} → n = ${res}`;
   if (tr.label === 'mean') return `${res}`;
+  if (tr.conv) return `${y} ${tr.conv.from} = ${res} ${tr.conv.to}`;
+  if (tr.label === 'sigma55' || tr.label === 'sigmaMinus55') return `${OP_LABEL[tr.label]} x = ${y}, y = ${x} → n = ${res}`;
+  if (['mean55', 'sdev55', 'lr'].includes(tr.label)) return `${OP_LABEL[tr.label]}: ${res}`;
+  if (tr.label === 'yhat') return `ŷ(${y}) = ${res}`;
+  if (tr.label === 'hmsAdd' || tr.label === 'hmsSub') return `${y} ${tr.label === 'hmsAdd' ? '+' : '−'} ${x} (h.mmss) = ${res}`;
   return `${OP_LABEL[tr.label] ?? tr.label} ${args}${unit} = ${res}`;
 }
 

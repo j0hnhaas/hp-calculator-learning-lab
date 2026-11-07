@@ -23,19 +23,19 @@ Der HP-45 hatte keinen Multiplizierer. Er rechnete in BCD (eine Dezimalziffer pr
 - **Baukasten:** „Alles aus 4 Bausteinen“ (Addieren, Verschieben, Zählen, Vergleichen) mit einer live berechneten Kostentabelle: + kostet 1 Addition, × 9, ÷ 58, sin 30° rund 190. Das Labor zeigt oben, was die letzte Rechnung gekostet hat.
 - **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
 
-### Zwei Rechner: HP-35 und HP-45
+### Drei Rechner: HP-35, HP-45 und HP-55
 
-Ein Schiebeschalter auf der Silberleiste wechselt zwischen dem **HP-35** (1972) und dem **HP-45** (1973). Beide nutzen dieselbe dezimale CORDIC-Familie. Beim Umschalten wird der Rechner zurückgesetzt, als würde man das andere Gerät in die Hand nehmen. Die Wahl bleibt gespeichert.
+Ein Schiebeschalter mit drei Stellungen auf der Silberleiste wechselt zwischen dem **HP-35** (1972), dem **HP-45** (1973) und dem **HP-55** (1975). Alle nutzen dieselbe dezimale CORDIC-Familie. Beim Umschalten wird der Rechner zurückgesetzt, als würde man das andere Gerät in die Hand nehmen. Die Wahl bleibt gespeichert.
 
-| | HP-35 | HP-45 |
-|---|---|---|
-| Inverse Winkelfunktionen | Vorsatztaste `arc` | goldene Shift-Taste |
-| Winkelmodus | nur Grad | DEG / RAD / GRD |
-| Potenz | `xʸ`: Exponent ENTER Basis xʸ | `yˣ`: Basis ENTER Exponent yˣ |
-| Speicher | ein Register (STO/RCL) | R1–R9 mit Registerarithmetik |
-| Anzeige | automatisch: fest für 10⁻² ≤ \|x\| < 10¹⁰, sonst wissenschaftlich | FIX n / SCI n |
-| Fehler | Anzeige blinkt | „Error“ |
-| Extras | π, CLR | LAST x, →P/→R, Statistik, D.MS, %, n!, Umrechnungen |
+| | HP-35 | HP-45 | HP-55 |
+|---|---|---|---|
+| Inverse Winkelfunktionen | Vorsatztaste `arc` | goldene Shift-Taste | blaue `g`-Taste (gold `f` für die Funktion) |
+| Winkelmodus | nur Grad | DEG / RAD / GRD | DEG / RAD / GRD |
+| Potenz | `xʸ`: Exponent ENTER Basis xʸ | `yˣ`: Basis ENTER Exponent yˣ | `yˣ` |
+| Speicher | ein Register (STO/RCL) | R1–R9 mit Registerarithmetik | R0–R9 und R.0–R.9 |
+| Anzeige | automatisch: fest für 10⁻² ≤ \|x\| < 10¹⁰, sonst wissenschaftlich | FIX n / SCI n | FIX n / SCI n |
+| Fehler | Anzeige blinkt | „Error“ | „Error“ |
+| Extras | π, CLR | LAST x, →P/→R, Statistik, D.MS, %, n!, Umrechnungskonstanten | 16 echte Umrechnungen, lineare Regression (L.R., ŷ), x̄/s für x und y, H.MS±; Programmierung folgt |
 
 ### Funktionen
 
@@ -146,6 +146,8 @@ Die Tastenbelegung wurde anhand der Beschreibung des Smithsonian (NMAH) und der 
 ## English
 
 The HP-45 had no hardware multiplier. It computed in BCD and could only **shift** digits and **add**, yet it delivered sin, ln or eˣ to 10 digits. This project simulates the calculator, and its **“Inside”** panel shows how it does that.
+
+**Models:** a three-position slide switch selects the HP-35 (1972), HP-45 (1973) or HP-55 (1975). The HP-55 adds f/g shift keys, 16 real unit conversions, linear regression (L.R., ŷ), means and deviations for x and y, H.MS± and the registers R.0–R.9. Its programming keys are present but come in a later part.
 
 **Features**
 - all 35 keys with gold shift, 4-level RPN stack, LAST x, R1–R9 with register arithmetic, FIX/SCI, DEG/RAD/GRD, polar/rectangular, D.MS, n!, %, Δ%, statistics and unit constants

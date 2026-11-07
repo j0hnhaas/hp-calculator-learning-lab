@@ -116,3 +116,35 @@ test('HP-35: x^y with the base in X, arc prefix, single register, auto display',
   assert.ok(c.error);
   assert.equal(c.model, 35);
 });
+
+test('HP-55: f/g prefixes, conversions, registers .0–.9, statistics with regression', () => {
+  const c = new HP45(55);
+  assert.equal(c.displayString().trimEnd(), ' 0.00');
+  run(c, '3 0 fkey pow'); // f yˣ = SIN
+  assert.equal(c.x, 0.5);
+  run(c, 'gkey pow'); // g yˣ = SIN⁻¹
+  assert.equal(c.x, 30);
+  run(c, '2 1 2 fkey d6'); // 212 °F → °C
+  assert.equal(c.x, 100);
+  run(c, 'gkey d6'); // back to °F
+  assert.equal(c.x, 212);
+  run(c, '1 fkey d7'); // 1 in → mm
+  assert.equal(c.x, 25.4);
+  run(c, '4 2 sto dot 3 clx rcl dot 3');
+  assert.equal(c.x, 42);
+  assert.equal(c.regs[13], 42);
+  run(c, '7 sto 0 clx rcl 0'); // the HP-55 has R0
+  assert.equal(c.x, 7);
+  run(c, 'gkey clx'); // CL.R clears .0–.9
+  const d = new HP45(55);
+  run(d, '2 enter 1 sigma55 4.1 enter 2 sigma55');
+  run(d, '5.9 enter 3 sigma55 8.2 enter 4 sigma55');
+  assert.equal(d.regs[10], 4);
+  run(d, 'fkey yhat'); // L.R.: intercept in X, slope in Y
+  assert.equal(d.stack[0], -0.05);
+  assert.equal(d.stack[1], 2.04);
+  run(d, '5 yhat'); // ŷ for x = 5
+  assert.equal(d.x, 10.15);
+  run(d, '1.3 enter 2.45 fkey enter'); // H.MS+: 1:30 + 2:45
+  assert.equal(d.x, 4.15);
+});
