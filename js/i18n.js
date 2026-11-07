@@ -10,9 +10,11 @@ const lnC = (j) => (j === 0 ? 'ln 2' : `ln(1+${p10(j)})`);
 const FN = { sin: 'sin', cos: 'cos', tan: 'tan' };
 
 const de = {
-  'app.title': 'Wie rechnet ein Taschenrechner von {year} den Sinus – ohne multiplizieren zu können?',
-  'app.subtitle': 'Tipp eine Zahl, drück SIN – und schau ihm beim Rechnen zu. Eine Simulation des HP-45 mit [[cordic|CORDIC]].',
-  'app.doctitle': 'HP-45 · So rechnet ein Taschenrechner',
+  'app.title': 'Wie Taschenrechner rechnen',
+  'app.subtitle': 'Eine interaktive Lernumgebung am Beispiel des HP-45',
+  'app.doctitle': 'Wie Taschenrechner rechnen · HP-45',
+  'rpn.short': 'RPN-Hilfe',
+  'keyhelp.short': '? Tasten',
   'lab.title': 'So rechnet der HP-45',
   'lab.toggle': '🔍 So rechnet er',
   'lab.close': 'Schließen',
@@ -232,9 +234,11 @@ const de = {
 };
 
 const en = {
-  'app.title': 'How does a {year} pocket calculator compute a sine – without being able to multiply?',
-  'app.subtitle': 'Type a number, press SIN – and watch it think. A simulation of the HP-45 using [[cordic|CORDIC]].',
-  'app.doctitle': 'HP-45 · How a pocket calculator computes',
+  'app.title': 'How calculators calculate',
+  'app.subtitle': 'An interactive learning environment based on the HP-45',
+  'app.doctitle': 'How calculators calculate · HP-45',
+  'rpn.short': 'RPN help',
+  'keyhelp.short': '? Keys',
   'lab.title': 'How the HP-45 calculates',
   'lab.toggle': '🔍 How it calculates',
   'lab.close': 'Close',
