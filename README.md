@@ -32,6 +32,7 @@ Die Programmiertasten des HP-55 (R/S, SST, BST, GTO, x≤y, x=y) sind vorhanden,
 
 ### Lernhilfen
 
+- **🧭 Lernpfad:** Zehn Kapitel vom Rechenschieber bis in den Chip: ① 1972: Rechnen ohne Taschenrechner ② Bedienen mit RPN ③ Wie Zahlen im Chip wohnen ④ Plus, Mal, Geteilt – nur mit Addieren ⑤ Wurzel Ziffer für Ziffer ⑥ sin, cos, tan und atan ⑦ CORDIC ⑧ Wachsen mit Zinsen: e, eˣ, ln ⑨ Wie genau ist genau? ⑩ Was steckt im Gehäuse – und was kam danach? Jedes Kapitel hat ein Ziel, kurze Karten (je nach Niveau mehr oder weniger), einen Auftrag am Rechner oder im Labor, den die App erkennt, einen Merksatz und ein Quiz mit 5 Fragen samt Erklärung. Ab 3 richtigen Antworten gibt es den Haken; alle Kapitel sind frei wählbar, der Fortschritt bleibt gespeichert. Neue Besucher werden direkt zu Kapitel 1 eingeladen. Inhalte in `js/path/chapters.js`.
 - **RPN in einer Minute:** Vier kurze Karten erklären, wie man ohne =-Taste rechnet. Danach folgen drei Übungen direkt am Rechner, der richtige Lösungen erkennt. Beim ersten Besuch erscheint dazu ein Hinweis.
 - **Stapel live:** Unter dem Rechner ist der Stack als Stapel T–Z–Y–X zu sehen. Geänderte Werte leuchten kurz auf.
 - **Ein Niveau für die ganze App:** In der Kopfzeile wählst du 🎓 **Einsteiger**, **Fortgeschritten** oder **Profi**. Die Wahl gilt überall: im Labor und im Glossar (Einsteiger sehen zuerst die Kurzfassung, ab Fortgeschritten ist die Vertiefung gleich aufgeklappt).
@@ -136,6 +137,10 @@ js/ui/       display.js (LED), calculator.js, lab.js (Labor),
              story.js, story-arith.js, story-recipe.js (Erzählungen der Stufe „Einsteiger“),
              rpn-guide.js, keyhelp-ui.js, blocks.js (Baukasten), sheet.js (Dialoge, Glossar),
              unit-circle.js (Einheitskreis)
+js/path/     chapters.js (Lernpfad: Kapitel, Aufträge, Quiz)
+js/ui/path.js (Lernpfad-Oberfläche)
+js/path/     chapters.js (learning path: chapters, tasks, quizzes)
+js/ui/path.js (learning path UI)
 js/i18n.js, js/glossary.js, js/keyhelp.js, js/level.js, js/app.js, tests/
 ```
 
@@ -148,7 +153,7 @@ js/i18n.js, js/glossary.js, js/keyhelp.js, js/level.js, js/app.js, tests/
 - [x] Grundrechenarten in BCD, Baukasten mit Kostenzähler, Rezepte für Spezial- und Umrechnungstasten
 - [x] HP-55 Teil 1: Tastatur mit f/g, Umrechnungen, Statistik mit linearer Regression
 - [x] Mathe-Grundlagen: Mathe-Glossar, Einheitskreis, Beispielleiter, ein Niveau für die ganze App
-- [ ] Lernpfad mit Kapiteln (Geschichte, RPN, BCD, Grundrechnen, Winkel, CORDIC, Logarithmen, Genauigkeit, Technik) und 4–5 Quizfragen pro Kapitel
+- [x] Lernpfad mit 10 Kapiteln (Geschichte, RPN, BCD, Grundrechnen, Wurzel, Winkel, CORDIC, Logarithmen, Genauigkeit, Technik), Aufträgen am Rechner und je 5 Quizfragen
 - [ ] HP-55 Teil 2: Programmierung (49 Programmschritte, PRGM/RUN) und Laborkapitel „So läuft ein Programm“
 - [ ] HP-55 Teil 3: Stoppuhr (TIMER)
 
@@ -179,6 +184,7 @@ The HP-55's programming keys (R/S, SST, BST, GTO, x≤y, x=y) are present but no
 
 ### Learning aids
 
+- **🧭 Learning path:** ten chapters from the slide rule into the chip: ① 1972: calculating without a calculator ② operating with RPN ③ how numbers live in the chip ④ plus, times, divide – just by adding ⑤ square roots digit by digit ⑥ sin, cos, tan and atan ⑦ CORDIC ⑧ growing with interest: e, eˣ, ln ⑨ how accurate is accurate? ⑩ what is inside – and what came next? Each chapter has a goal, short cards (more or fewer depending on the level), a task on the calculator or in the lab that the app recognises, a key takeaway and a 5-question quiz with explanations. 3 correct answers earn the tick; every chapter can be picked freely and progress is saved. New visitors are invited straight to chapter 1. Content in `js/path/chapters.js`.
 - **RPN in one minute:** four short cards explain how to calculate without an = key, followed by three exercises right on the calculator, which recognises correct solutions. First-time visitors get a hint.
 - **Live stack:** below the calculator the stack is shown as a pile T–Z–Y–X. Changed values light up briefly.
 - **One level for the whole app:** in the header you choose 🎓 **Beginner**, **Advanced** or **Expert**. The choice applies everywhere: in the lab and in the glossary (beginners see the short version first, from Advanced on the deep dive is already open).
@@ -295,7 +301,7 @@ js/i18n.js, js/glossary.js, js/keyhelp.js, js/level.js, js/app.js, tests/
 - [x] basic arithmetic in BCD, building blocks with cost counter, recipes for special and conversion keys
 - [x] HP-55 part 1: keyboard with f/g, conversions, statistics with linear regression
 - [x] maths basics: maths glossary, unit circle, example ladder, one level for the whole app
-- [ ] learning path with chapters (history, RPN, BCD, basic arithmetic, angles, CORDIC, logarithms, accuracy, technology) and 4–5 quiz questions per chapter
+- [x] learning path with 10 chapters (history, RPN, BCD, basic arithmetic, square root, angles, CORDIC, logarithms, accuracy, technology), tasks on the calculator and 5 quiz questions each
 - [ ] HP-55 part 2: programming (49 program steps, PRGM/RUN) and the lab chapter “How a program runs”
 - [ ] HP-55 part 3: stopwatch (TIMER)
 
@@ -308,6 +314,8 @@ The key layouts were reconstructed from museum descriptions (including the Smith
 - J. E. Volder, *The CORDIC Trigonometric Computing Technique*, IRE Trans. Electronic Computers, 1959
 - J. E. Meggitt, *Pseudo Division and Pseudo Multiplication Processes*, IBM Journal, 1962
 - D. S. Cochran, *Algorithms and Accuracy in the HP-35*, Hewlett-Packard Journal, June 1972
+- T. M. Whitney, F. Rodé, C. C. Tung, *The “Powerful Pocketful”: an Electronic Calculator Challenges the Slide Rule*, Hewlett-Packard Journal, June 1972
+- Museum of HP Calculators (hpmuseum.org): HP-35, HP-45, HP-55 and classic series technology
 - Smithsonian NMAH, object 1276228 (HP-45)
 
 MIT License. HP and Hewlett-Packard are trademarks of HP Inc. This project is unaffiliated and uses no original ROM code or logos.
