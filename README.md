@@ -1,7 +1,9 @@
-# hp45-cordic
+# hp-calculator-learning-lab
 
-**HP-45 calculator simulation (1973) with authentic decimal CORDIC algorithms – and a step-by-step look inside.**
-*Simulation des HP-45 (1973) mit originalgetreuen dezimalen CORDIC-Algorithmen – und einem Blick ins Innere, Schritt für Schritt.*
+**How calculators calculate – an interactive learning lab based on the HP-35, HP-45 and HP-55 (1972–1975), with authentic decimal CORDIC algorithms and a step-by-step look inside.**
+*Wie Taschenrechner rechnen – eine interaktive Lernumgebung am Beispiel von HP-35, HP-45 und HP-55 (1972–1975), mit originalgetreuen dezimalen CORDIC-Algorithmen und einem Blick ins Innere, Schritt für Schritt.*
+
+**Live:** https://j0hnhaas.github.io/hp-calculator-learning-lab/ · Sister project: [ti30-learning-lab](https://github.com/j0hnhaas/ti30-learning-lab)
 
 [Deutsch](#deutsch) · [English](#english)
 
