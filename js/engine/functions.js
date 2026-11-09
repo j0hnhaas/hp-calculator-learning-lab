@@ -42,7 +42,6 @@ export const OVERFLOW = 9.999999999e99;
  */
 /**
  * Reduce an angle exactly (in decimal) to 0 <= θ < π/2 plus a quadrant.
- * Shared by the decimal and the binary CORDIC so both start from the same θ.
  */
 export function reduceAngle(fn, x, mode, T, algo = 'trig') {
   const M = MODES[mode];
