@@ -9,6 +9,7 @@ import { t, setLang, detectLang, applyStatic, getLang, onLang, setModelName } fr
 import { openRpnGuide, TASKS, taskTexts, keys } from './ui/rpn-guide.js';
 import './ui/sheet.js';
 import { openKeyHelp } from './ui/keyhelp-ui.js';
+import { initPath, openPath } from './ui/path.js';
 import * as fn from './engine/functions.js';
 import * as extra from './engine/extra.js';
 
@@ -199,10 +200,96 @@ function checkTask(id) {
     if (task !== cur) return;
     task = last ? null : task + 1;
     showTask();
+    if (last && rpnDone) {
+      const cb = rpnDone;
+      rpnDone = null;
+      cb();
+    }
   }, last ? 3500 : 1600);
 }
 
+// ---------------------------------------------------------------- learning path: hands-on tasks
+let rpnDone = null; // called when the RPN exercises were started from the path and are finished
+let challenge = null; // { label, text, hint, check, onDone }
+
+function showChallenge(solved = false) {
+  if (!challenge) {
+    if (task === null) taskEl.hidden = true;
+    return;
+  }
+  const c = challenge;
+  taskEl.hidden = false;
+  if (solved) {
+    taskEl.className = 'task ok';
+    taskEl.innerHTML = `<span class="task-q">✓ <b>${t('path.solved')}</b></span>
+      <span class="task-actions"><button type="button" class="pill primary" data-ch-act="back">${t('path.back')}</button></span>`;
+    return;
+  }
+  taskEl.className = 'task path-task';
+  const hint = c.hint ? c.hint[calc.model] ?? c.hint[45] : '';
+  taskEl.innerHTML = `
+    <span class="task-q">🧭 ${c.label} ${c.text}</span>
+    <span class="task-actions">
+      ${hint ? `<button type="button" class="pill" data-ch-act="hint">${t('path.hint')}</button>` : ''}
+      <button type="button" class="pill" data-ch-act="quit" aria-label="${t('path.quit')}">✕</button>
+    </span>
+    ${hint ? `<span class="task-hint" hidden>${keys(hint)}</span>` : ''}`;
+}
+
+function startChallenge(c) {
+  task = null;
+  challenge = c;
+  setSheet(false);
+  showChallenge();
+  taskEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function checkChallenge(id) {
+  if (!challenge || challenge.solved) return;
+  if (!challenge.check(calc, id)) return;
+  challenge.solved = true;
+  showChallenge(true);
+}
+
+taskEl.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-ch-act]');
+  if (!b || !challenge) return;
+  const act = b.dataset.chAct;
+  if (act === 'hint') taskEl.querySelector('.task-hint').hidden = false;
+  if (act === 'quit' || act === 'back') {
+    const c = challenge;
+    challenge = null;
+    showChallenge();
+    if (act === 'back') c.onDone();
+  }
+});
+
+initPath({
+  model: () => calc.model,
+  startChallenge,
+  startRpn(onDone) {
+    challenge = null;
+    rpnDone = onDone;
+    setSheet(false);
+    startTasks();
+  },
+  runLab(ex, onDone) {
+    challenge = null;
+    showChallenge();
+    lab.setReturn(t('path.back'), onDone);
+    lab.runExample(ex);
+    setSheet(true);
+  },
+});
+
 document.addEventListener('click', (e) => {
+  const pb = e.target.closest('[data-path]');
+  if (pb) {
+    hint?.remove();
+    store.set('hintSeen', true);
+    openPath(pb.dataset.path === '' ? undefined : +pb.dataset.path);
+    return;
+  }
   if (e.target.closest('[data-rpn]')) {
     hint?.remove();
     store.set('hintSeen', true);
@@ -218,7 +305,7 @@ if (!store.get('hintSeen', false)) {
   document.querySelector('.topbar').after(hint);
   const renderHint = () => {
     if (!hint?.isConnected) return;
-    hint.innerHTML = `<span>${t('rpn.coach')}</span><button type="button" class="pill primary" data-rpn>${t('rpn.open')}</button><button type="button" class="icon-btn coach-x" aria-label="${t('lab.close')}">✕</button>`;
+    hint.innerHTML = `<span>${t('path.start')}</span><button type="button" class="pill primary" data-path="0">${t('path.start.go')}</button><button type="button" class="pill" data-rpn>${t('rpn.open')}</button><button type="button" class="icon-btn coach-x" aria-label="${t('lab.close')}">✕</button>`;
     hint.querySelector('.coach-x').addEventListener('click', () => {
       hint.remove();
       store.set('hintSeen', true);
@@ -251,6 +338,7 @@ function run(id) {
   const ms = res.busy; // always the original speed: the display goes dark while computing
   renderStatus();
   checkTask(id);
+  checkChallenge(id);
   if (ms > 0) {
     busy = true;
     ui.display.show(null); // the display goes dark while the calculator is busy
@@ -275,6 +363,8 @@ function onModel(m) {
   buildKeymap();
   setModelName(m);
   refresh();
+  checkChallenge('model');
+  if (challenge && !challenge.solved) showChallenge(); // hints depend on the model
 }
 
 function onPower(on) {

@@ -118,6 +118,7 @@ export class Lab {
         <h2 id="lab-title" data-i18n="lab.title"></h2>
         <button type="button" class="lab-close icon-btn" data-i18n-title="lab.close">✕</button>
       </div>
+      <button type="button" class="pill primary path-back" hidden></button>
       <div class="lab-empty">
         <p data-i18n-rich="lab.empty"></p>
         <button type="button" class="pill primary" data-ex="0" data-i18n="lab.start"></button>
@@ -128,6 +129,7 @@ export class Lab {
           <button type="button" class="chip" data-term="atan" data-i18n="lab.refresh.atan"></button>
           <button type="button" class="chip" data-term="log" data-i18n="lab.refresh.log"></button>
           <button type="button" class="chip" data-glossary data-i18n="glossary.all"></button>
+          <button type="button" class="chip" data-path="" data-i18n="path.btn"></button>
         </div>
         <button type="button" class="pill" data-blocks data-i18n="blocks.open"></button>
       </div>
@@ -290,6 +292,19 @@ export class Lab {
     new ResizeObserver(() => this.draw()).observe(q('.viz-wrap'));
   }
 
+  /** A "back to the learning path" button while a chapter task runs in the lab. */
+  setReturn(label, fn) {
+    const b = this.root.querySelector('.path-back');
+    b.textContent = label;
+    b.hidden = false;
+    b.onclick = () => {
+      b.hidden = true;
+      b.onclick = null;
+      this.renderNext();
+      fn();
+    };
+  }
+
   /** The ladder as a numbered list: label + what it teaches. */
   renderExamples() {
     const d = getLang() === 'de' ? ',' : '.';
@@ -314,7 +329,8 @@ export class Lab {
     const b = this.root.querySelector('.ex-next');
     if (!b) return;
     const n = this.exIdx === undefined ? -1 : this.exIdx + 1;
-    b.hidden = !(n > 0 && n < EXAMPLES.length);
+    // while a chapter task runs, the way back to the chapter is the only “next” button
+    b.hidden = !(n > 0 && n < EXAMPLES.length) || !this.root.querySelector('.path-back').hidden;
     if (!b.hidden) {
       b.dataset.ex = String(n);
       b.textContent = t('lab.next.ex').replace('{n}', n + 1).replace('{x}', EXAMPLES[n].label(getLang() === 'de' ? ',' : '.'));
