@@ -1,7 +1,7 @@
 {
-  "name": "HP-45 · Decimal CORDIC",
-  "short_name": "HP-45",
-  "description": "HP-45 calculator simulation (1973) with authentic decimal CORDIC algorithms – step by step.",
+  "name": "How calculators calculate · HP Learning Lab",
+  "short_name": "HP Lab",
+  "description": "Interactive learning lab based on the HP-35, HP-45 and HP-55, with authentic decimal CORDIC algorithms – step by step.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
