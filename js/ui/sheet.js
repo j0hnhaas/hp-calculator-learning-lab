@@ -3,7 +3,9 @@
 // focus trap, Esc to close and screen-reader semantics come for free.
 
 import { t, rich, getLang } from '../i18n.js';
-import { GLOSSARY } from '../glossary.js';
+import { GLOSSARY, GLOSSARY_GROUPS } from '../glossary.js';
+import { getLevel } from '../level.js';
+import { mountUnitCircle } from './unit-circle.js';
 
 let dlg;
 let onCloseCb = null;
@@ -63,25 +65,48 @@ export function closeSheet() {
 
 /** Show a glossary entry. Links inside it open other entries in the same dialog. */
 export function openTerm(id) {
-  const g = GLOSSARY[id]?.[getLang()] ?? GLOSSARY[id]?.en;
+  const entry = GLOSSARY[id];
+  const g = entry?.[getLang()] ?? entry?.en;
   if (!g) return;
+  // beginners see the short version first; from "advanced" on the details are open
+  const open = getLevel() === 'simple' ? '' : ' open';
   const see = (g.see ?? [])
     .filter((k) => GLOSSARY[k])
     .map((k) => `<button type="button" class="chip" data-term="${k}">${(GLOSSARY[k][getLang()] ?? GLOSSARY[k].en).term}</button>`)
     .join('');
-  openSheet({
+  const body = openSheet({
     title: rich(g.term),
     className: 'sheet-term',
     html: `
       <p class="g-short">${rich(g.short)}</p>
+      ${entry.viz === 'circle' ? '<div class="g-viz"></div>' : ''}
       ${g.image ? `<div class="g-image"><span class="g-label">${t('glossary.image')}</span><p>${rich(g.image)}</p></div>` : ''}
-      ${g.more ? `<details class="g-more"><summary>${t('glossary.more')}</summary><p>${rich(g.more)}</p></details>` : ''}
-      ${see ? `<div class="g-see"><span class="g-label">${t('glossary.see')}</span><div class="g-chips">${see}</div></div>` : ''}`,
+      ${g.more ? `<details class="g-more"${open}><summary>${t('glossary.more')}</summary><p>${rich(g.more)}</p></details>` : ''}
+      ${see ? `<div class="g-see"><span class="g-label">${t('glossary.see')}</span><div class="g-chips">${see}</div></div>` : ''}
+      <p class="g-all"><button type="button" class="term" data-glossary>${t('glossary.all')}</button></p>`,
   });
+  const viz = body.querySelector('.g-viz');
+  if (viz) mountUnitCircle(viz, id === 'atan' ? 45 : 30);
+}
+
+/** All terms, grouped: mathematics, technology inside the calculator, operation. */
+export function openGlossary() {
+  const lang = getLang();
+  const groups = Object.entries(GLOSSARY_GROUPS).map(([k, ids]) => `
+    <section class="g-group">
+      <h3>${t('glossary.group.' + k)}</h3>
+      <div class="g-chips">${ids.filter((id) => GLOSSARY[id]).map((id) => `<button type="button" class="chip" data-term="${id}">${(GLOSSARY[id][lang] ?? GLOSSARY[id].en).term}</button>`).join('')}</div>
+    </section>`).join('');
+  openSheet({ title: t('glossary.all'), className: 'sheet-term', html: `<p class="g-short">${t('glossary.intro')}</p>${groups}` });
 }
 
 // Any element with data-term – dashed links in texts, chips in the dialog – opens the glossary.
 document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-glossary]')) {
+    e.preventDefault();
+    openGlossary();
+    return;
+  }
   const el = e.target.closest('[data-term]');
   if (!el) return;
   e.preventDefault();

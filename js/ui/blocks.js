@@ -27,7 +27,7 @@ const SAMPLES = [
 export function costLabel(steps) {
   const { adds, divs } = costOf(steps);
   if (!adds && !divs) return '';
-  const a = t('cost.adds').replace('{n}', adds);
+  const a = t(adds === 1 ? 'cost.add1' : 'cost.adds').replace('{n}', adds);
   return divs ? `${a} ${t('cost.divs').replace('{n}', divs)}` : a;
 }
 

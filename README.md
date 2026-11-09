@@ -34,13 +34,15 @@ Die Programmiertasten des HP-55 (R/S, SST, BST, GTO, x≤y, x=y) sind vorhanden,
 
 - **RPN in einer Minute:** Vier kurze Karten erklären, wie man ohne =-Taste rechnet. Danach folgen drei Übungen direkt am Rechner, der richtige Lösungen erkennt. Beim ersten Besuch erscheint dazu ein Hinweis.
 - **Stapel live:** Unter dem Rechner ist der Stack als Stapel T–Z–Y–X zu sehen. Geänderte Werte leuchten kurz auf.
-- **Drei Stufen im Labor:**
-  - **Einfach** (Standard): Die Rechnung wird in 4 bis 11 Schritten erzählt. Winkel werden mit „Münzen“ bezahlt (45°, 5,71°, 0,573° …), Logarithmen über Zinsen erklärt (100 %, 10 %, 1 % …). Dazu kommen Merksätze und eine Münz-Grafik. Im Modus „Mitraten“ fragt das Labor vor jeder großen Münze, wie oft sie passt.
-  - **Detail:** alle Mikroschritte mit Konvergenz-Plot und Konstantentabelle
-  - **Profi:** zusätzlich BCD-Register und der Vergleich mit binärem CORDIC
+- **Ein Niveau für die ganze App:** In der Kopfzeile wählst du 🎓 **Einsteiger**, **Fortgeschritten** oder **Profi**. Die Wahl gilt überall: im Labor und im Glossar (Einsteiger sehen zuerst die Kurzfassung, ab Fortgeschritten ist die Vertiefung gleich aufgeklappt).
+  - **Einsteiger** (Standard): Die Rechnung wird in 4 bis 11 Schritten erzählt. Winkel werden mit „Münzen“ bezahlt (45°, 5,71°, 0,573° …), Logarithmen über Zinsen erklärt (100 %, 10 %, 1 % …). Dazu kommen Merksätze und eine Münz-Grafik. Im Modus „Mitraten“ fragt das Labor vor jeder großen Münze, wie oft sie passt.
+  - **Fortgeschritten:** alle Mikroschritte mit Konvergenz-Plot und Konstantentabelle
+  - **Profi:** zusätzlich die BCD-Register
 - **Tastenhilfe:** Mit „? Tasten“ werden Tasten erklärt statt ausgeführt. Für jede Taste und jede Umschaltfunktion aller drei Modelle gibt es eine Karte mit Erklärung, Tastenfolge und Stapel vorher/nachher. Bei Rechenfunktionen führt ein Knopf direkt ins Labor.
 - **Baukasten:** „Alles aus 4 Bausteinen“ (Addieren, Verschieben, Zählen, Vergleichen) mit einer live berechneten Kostentabelle: + kostet 1 Addition, × 9, ÷ 58, sin 30° rund 190. Das Labor zeigt oben, was die letzte Rechnung gekostet hat.
-- **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 26 Begriffe auf Deutsch und Englisch, zu finden in `js/glossary.js`.
+- **Beispielleiter:** Neun Beispiele vom Einfachen zum Schwierigen: 1,5 + 0,25 → 12 × 34 → 22 ÷ 7 → √2 → SIN 30° → TAN⁻¹ 1 → TAN 1 rad → eˣ 2 → ln 7. Jedes hat einen Satz dazu, was es zeigt, und ein Knopf führt zum nächsten.
+- **Glossar:** Fachbegriffe sind gestrichelt unterstrichen und öffnen eine Erklärung. Sie besteht aus einem Satz, einem Bild aus dem Alltag, einer Vertiefung zum Aufklappen und Querverweisen. Das Glossar umfasst 38 Begriffe auf Deutsch und Englisch in drei Gruppen: Mathematik (Winkelfunktionen, Einheitskreis, atan, Umkehrfunktion, Bogenmaß, π, Potenz, Stellenwert, Wurzel, Logarithmus, e, signifikante Stellen, Näherung, Fakultät, Statistik, Regression …), Technik im Rechner und Bedienung. „📖 Alle Begriffe“ zeigt die Übersicht. Daten in `js/glossary.js`.
+- **Einheitskreis zum Anfassen:** Bei sin/cos/tan, Einheitskreis und atan lässt sich ein Punkt auf dem Kreis ziehen. sin, cos und tan werden farbig als Höhe, Breite und Steigung gezeigt, dazu der Weg zurück mit atan.
 
 ### Das Labor „So rechnet er“
 
@@ -53,12 +55,7 @@ Jede Rechnung hinterlässt eine Spur aller Mikroschritte. Das Labor zeigt dazu:
 - die Quadratwurzel Ziffer für Ziffer, durch Abziehen ungerader Zahlen
 - einen **Konvergenz-Plot**, der für jeden Mikroschritt zeigt, wie viele Stellen schon stimmen. In der Pseudo-Division kommt etwa eine Stelle pro Dekade dazu. Die Pseudo-Multiplikation baut das Ergebnis mit den kleinsten Schritten zuerst auf und ist deshalb erst ganz am Ende genau. Ein Klick in den Plot springt zum Schritt.
 - eine **eigene Eingabe**: Funktion, Wert und Winkelmodus wählen und die Rechnung direkt im Labor ansehen
-- einen **Vergleich mit klassischem binärem CORDIC** für sin, cos, tan und atan:
-  - Umschalter Dezimal ↔ Binär
-  - binäre Register und die 36 Konstanten atan(2⁻ⁱ)
-  - das Pendeln des Vektors um das Ziel
-  - die Konvergenzkurve des anderen Verfahrens als Schatten
-  - eine Vergleichstabelle (Mikroschritte, Additionen, Konstanten, Verstärkung K, Zahlenformat, Genauigkeit bei kleinen Winkeln)
+- zwei aufklappbare Kästen: „Was passiert hier?“ in Alltagssprache und „Ein bisschen Geschichte“ (Volder 1959, Meggitt 1962, HP-35 1972)
 
 ### Grundrechenarten und Rezepte
 
@@ -133,24 +130,25 @@ index.html, css/style.css, manifest.webmanifest, sw.js, icons/, images/
 js/engine/   decimal.js (BCD-Festkomma, Wurzel), constants.js (ROM-Tabellen),
              cordic.js (tan/atan/ln/exp-Kerne mit Trace), functions.js,
              arith.js (+ − × ÷ in BCD), extra.js (Rezepte: n!, Statistik, Umrechnungen …),
-             cost.js (Additionen zählen), convergence.js (richtige Stellen pro Schritt),
-             binary.js (klassisches binäres CORDIC zum Vergleich)
+             cost.js (Additionen zählen), convergence.js (richtige Stellen pro Schritt)
 js/calc/     hp45.js (RPN-Logik aller drei Modelle, Anzeigeformat), keys.js (Tastaturen)
 js/ui/       display.js (LED), calculator.js, lab.js (Labor),
-             story.js, story-arith.js, story-recipe.js (Erzählungen der Stufe „Einfach“),
-             rpn-guide.js, keyhelp-ui.js, blocks.js (Baukasten), sheet.js (Dialoge)
-js/i18n.js, js/glossary.js, js/keyhelp.js, js/app.js, tests/
+             story.js, story-arith.js, story-recipe.js (Erzählungen der Stufe „Einsteiger“),
+             rpn-guide.js, keyhelp-ui.js, blocks.js (Baukasten), sheet.js (Dialoge, Glossar),
+             unit-circle.js (Einheitskreis)
+js/i18n.js, js/glossary.js, js/keyhelp.js, js/level.js, js/app.js, tests/
 ```
 
 ### Roadmap
 
 - [x] HP-45: Rechner, dezimales CORDIC mit Trace, Labor mit Vektor- und Zoom-Ansicht, PWA, DE/EN
 - [x] Konvergenz-Plot und eigene Eingabe im Labor
-- [x] Vergleich dezimales HP-Verfahren ↔ klassisches binäres CORDIC
 - [x] HP-35 als zweites Modell
 - [x] Lernhilfen: RPN-Anleitung mit Übungen, Stapel live, drei Stufen, Glossar, Tastenhilfe
 - [x] Grundrechenarten in BCD, Baukasten mit Kostenzähler, Rezepte für Spezial- und Umrechnungstasten
 - [x] HP-55 Teil 1: Tastatur mit f/g, Umrechnungen, Statistik mit linearer Regression
+- [x] Mathe-Grundlagen: Mathe-Glossar, Einheitskreis, Beispielleiter, ein Niveau für die ganze App
+- [ ] Lernpfad mit Kapiteln (Geschichte, RPN, BCD, Grundrechnen, Winkel, CORDIC, Logarithmen, Genauigkeit, Technik) und 4–5 Quizfragen pro Kapitel
 - [ ] HP-55 Teil 2: Programmierung (49 Programmschritte, PRGM/RUN) und Laborkapitel „So läuft ein Programm“
 - [ ] HP-55 Teil 3: Stoppuhr (TIMER)
 
@@ -183,13 +181,15 @@ The HP-55's programming keys (R/S, SST, BST, GTO, x≤y, x=y) are present but no
 
 - **RPN in one minute:** four short cards explain how to calculate without an = key, followed by three exercises right on the calculator, which recognises correct solutions. First-time visitors get a hint.
 - **Live stack:** below the calculator the stack is shown as a pile T–Z–Y–X. Changed values light up briefly.
-- **Three levels in the lab:**
-  - **Simple** (default): the calculation is told in 4 to 11 steps. Angles are paid with “coins” (45°, 5.71°, 0.573° …), logarithms are explained through interest (100 %, 10 %, 1 % …), with key takeaways and a coin graphic. In “guess along” mode the lab asks before each big coin how often it fits.
-  - **Detail:** all micro-steps with convergence plot and constant table
-  - **Expert:** additionally the BCD registers and the comparison with binary CORDIC
+- **One level for the whole app:** in the header you choose 🎓 **Beginner**, **Advanced** or **Expert**. The choice applies everywhere: in the lab and in the glossary (beginners see the short version first, from Advanced on the deep dive is already open).
+  - **Beginner** (default): the calculation is told in 4 to 11 steps. Angles are paid with “coins” (45°, 5.71°, 0.573° …), logarithms are explained through interest (100 %, 10 %, 1 % …), with key takeaways and a coin graphic. In “guess along” mode the lab asks before each big coin how often it fits.
+  - **Advanced:** all micro-steps with convergence plot and constant table
+  - **Expert:** additionally the BCD registers
 - **Key help:** with “? Keys” tapping a key explains it instead of executing it. Every key and every shifted function of all three models has a card with an explanation, key sequence and stack before/after. For calculations a button leads straight to the lab.
 - **Building blocks:** “Everything from 4 building blocks” (add, shift, count, compare) with a live cost table: + costs 1 addition, × 9, ÷ 58, sin 30° about 190. The lab shows what the last calculation cost.
-- **Glossary:** technical terms are underlined with dashes and open an explanation: one sentence, an everyday picture, an expandable deep dive and cross-references. 26 terms in German and English, in `js/glossary.js`.
+- **Example ladder:** nine examples from easy to hard: 1.5 + 0.25 → 12 × 34 → 22 ÷ 7 → √2 → SIN 30° → TAN⁻¹ 1 → TAN 1 rad → eˣ 2 → ln 7. Each comes with one sentence on what it shows, and a button leads to the next one.
+- **Glossary:** technical terms are underlined with dashes and open an explanation: one sentence, an everyday picture, an expandable deep dive and cross-references. 38 terms in German and English in three groups: mathematics (trig functions, unit circle, atan, inverse function, radians, π, powers, place value, square root, logarithm, e, significant digits, approximation, factorial, statistics, regression …), technology inside the calculator, and operation. “📖 All terms” shows the overview. Data in `js/glossary.js`.
+- **Hands-on unit circle:** for sin/cos/tan, the unit circle and atan you can drag a point around the circle. sin, cos and tan are shown in colour as height, width and slope, together with the way back via atan.
 
 ### The lab “How it calculates”
 
@@ -202,12 +202,7 @@ Every calculation leaves a trace of all its micro-steps. The lab shows:
 - the square root digit by digit, by subtracting odd numbers
 - a **convergence plot** of correct digits per micro-step. Pseudo-division gains about one digit per decade. Pseudo-multiplication builds the result with the smallest steps first and is only accurate at the very end. Clicking the plot jumps to that step.
 - **your own input**: pick a function, value and angle mode and watch the calculation in the lab
-- a **comparison with classic binary CORDIC** for sin, cos, tan and atan:
-  - decimal ↔ binary switch
-  - binary registers and the 36 constants atan(2⁻ⁱ)
-  - the vector oscillating around its target
-  - the other method's convergence curve as a ghost
-  - a comparison table (micro-steps, additions, constants, gain K, number format, accuracy for small angles)
+- two expandable boxes: “What is going on?” in plain language and “A bit of history” (Volder 1959, Meggitt 1962, HP-35 1972)
 
 ### Basic arithmetic and recipes
 
@@ -282,24 +277,25 @@ index.html, css/style.css, manifest.webmanifest, sw.js, icons/, images/
 js/engine/   decimal.js (BCD fixed point, square root), constants.js (ROM tables),
              cordic.js (tan/atan/ln/exp kernels with trace), functions.js,
              arith.js (+ − × ÷ in BCD), extra.js (recipes: n!, statistics, conversions …),
-             cost.js (counting additions), convergence.js (correct digits per step),
-             binary.js (classic binary CORDIC for comparison)
+             cost.js (counting additions), convergence.js (correct digits per step)
 js/calc/     hp45.js (RPN logic of all three models, display format), keys.js (keyboards)
 js/ui/       display.js (LED), calculator.js, lab.js (lab),
-             story.js, story-arith.js, story-recipe.js (stories of the “Simple” level),
-             rpn-guide.js, keyhelp-ui.js, blocks.js (building blocks), sheet.js (dialogs)
-js/i18n.js, js/glossary.js, js/keyhelp.js, js/app.js, tests/
+             story.js, story-arith.js, story-recipe.js (stories of the “Beginner” level),
+             rpn-guide.js, keyhelp-ui.js, blocks.js (building blocks), sheet.js (dialogs, glossary),
+             unit-circle.js (unit circle)
+js/i18n.js, js/glossary.js, js/keyhelp.js, js/level.js, js/app.js, tests/
 ```
 
 ### Roadmap
 
 - [x] HP-45: calculator, decimal CORDIC with trace, lab with vector and zoom view, PWA, DE/EN
 - [x] convergence plot and your own input in the lab
-- [x] comparison of HP's decimal method ↔ classic binary CORDIC
 - [x] HP-35 as a second model
 - [x] learning aids: RPN guide with exercises, live stack, three levels, glossary, key help
 - [x] basic arithmetic in BCD, building blocks with cost counter, recipes for special and conversion keys
 - [x] HP-55 part 1: keyboard with f/g, conversions, statistics with linear regression
+- [x] maths basics: maths glossary, unit circle, example ladder, one level for the whole app
+- [ ] learning path with chapters (history, RPN, BCD, basic arithmetic, angles, CORDIC, logarithms, accuracy, technology) and 4–5 quiz questions per chapter
 - [ ] HP-55 part 2: programming (49 program steps, PRGM/RUN) and the lab chapter “How a program runs”
 - [ ] HP-55 part 3: stopwatch (TIMER)
 

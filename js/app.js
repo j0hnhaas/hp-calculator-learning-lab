@@ -1,5 +1,6 @@
 // Wires calculator, lab, settings and PWA together.
 
+import { getLevel, setLevel, onLevel } from './level.js';
 import { HP45 } from './calc/hp45.js';
 import { KEY_LAYOUTS } from './calc/keys.js';
 import { buildCalculator } from './ui/calculator.js';
@@ -351,6 +352,10 @@ onLang(() => {
   renderStatus();
 });
 
+const optLevel = document.getElementById('opt-level');
+optLevel.value = getLevel();
+optLevel.addEventListener('change', () => setLevel(optLevel.value));
+onLevel((lv) => { optLevel.value = lv; });
 const optSound = document.getElementById('opt-sound');
 optSound.checked = settings.sound;
 optSound.addEventListener('change', () => {
